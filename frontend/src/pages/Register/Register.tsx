@@ -41,7 +41,7 @@ export default function Register() {
       {/* Botão voltar */}
       <IconButton
         aria-label="Voltar"
-        onClick={() => navigate("/login")}
+        onClick={() => navigate("/")}
         sx={{
           position: "absolute",
           top: {

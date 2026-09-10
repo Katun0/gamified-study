@@ -40,6 +40,7 @@ export default function Login() {
       {/* Botão fechar */}
       <IconButton
         aria-label="Fechar"
+        onClick={() => navigate("/")}
         sx={{
           position: "absolute",
           top: {

@@ -14,6 +14,7 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import JavascriptIcon from '@mui/icons-material/Javascript';
 import GoogleIcon from "@mui/icons-material/Google";
 
 import { useNavigate } from "react-router-dom";
@@ -32,6 +33,7 @@ const languages = [
     description: "Domine a linguagem da web",
     symbol: "JS",
     color: "#F7DF1E",
+    icon: "javascript"
   },
   {
     name: "PHP",

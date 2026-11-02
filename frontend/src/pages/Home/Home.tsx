@@ -14,7 +14,6 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
-import JavascriptIcon from '@mui/icons-material/Javascript';
 import GoogleIcon from "@mui/icons-material/Google";
 
 import { useNavigate } from "react-router-dom";
@@ -159,6 +158,7 @@ export default function Home() {
             }}
           >
             <Button
+              onClick={() => navigate("/courses/new")}
               sx={{
                 color: colors.text,
                 fontWeight: 600,
@@ -174,6 +174,7 @@ export default function Home() {
             </Button>
 
             <Button
+              onClick={() => navigate("/lessons/new")}
               sx={{
                 color: colors.text,
                 fontWeight: 600,

@@ -18,6 +18,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { colors } from "../../theme/colors";
@@ -27,6 +28,43 @@ export default function Register() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
+      const response = await fetch(`${apiUrl}/api/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Não foi possível criar sua conta. Tente novamente.");
+      }
+
+      navigate("/login", { state: { message: "Conta criada com sucesso. Faça login para continuar." } });
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Erro ao conectar com o servidor.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box
@@ -78,7 +116,7 @@ export default function Register() {
           },
         }}
       >
-        <Stack spacing={2}>
+        <Stack component="form" spacing={2} onSubmit={handleSubmit}>
           {/* Logo */}
           <Box
             sx={{
@@ -131,6 +169,11 @@ export default function Register() {
             fullWidth
             placeholder="Nome"
             type="text"
+            name="name"
+            autoComplete="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
             slotProps={{
               input: {
                 startAdornment: (
@@ -153,6 +196,11 @@ export default function Register() {
             fullWidth
             placeholder="E-mail"
             type="email"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
             slotProps={{
               input: {
                 startAdornment: (
@@ -175,7 +223,13 @@ export default function Register() {
             fullWidth
             placeholder="Senha"
             type={showPassword ? "text" : "password"}
+            name="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
             slotProps={{
+              htmlInput: { minLength: 8 },
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
@@ -221,7 +275,13 @@ export default function Register() {
             fullWidth
             placeholder="Confirmar senha"
             type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            required
             slotProps={{
+              htmlInput: { minLength: 8 },
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
@@ -312,8 +372,12 @@ export default function Register() {
           />
 
           {/* Criar conta */}
+          {error && <Typography role="alert" color="error" align="center">{error}</Typography>}
+
           <Button
             fullWidth
+            type="submit"
+            disabled={loading}
             variant="contained"
             color="primary"
             sx={{
@@ -329,7 +393,7 @@ export default function Register() {
               },
             }}
           >
-            Criar conta
+            {loading ? "Criando conta..." : "Criar conta"}
           </Button>
 
           {/* Voltar para login */}

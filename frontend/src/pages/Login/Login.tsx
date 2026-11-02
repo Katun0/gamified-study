@@ -13,11 +13,49 @@ import GoogleIcon from "@mui/icons-material/Google";
 import FacebookIcon from "@mui/icons-material/Facebook";
 
 import { colors } from "../../theme/colors";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import type { FormEvent } from "react";
 
 export default function Login() {
   
   const navigate = useNavigate()
+  const location = useLocation();
+  const successMessage = (location.state as { message?: string } | null)?.message;
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
+      const response = await fetch(`${apiUrl}/api/login_check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || "E-mail ou senha inválidos.");
+      }
+      if (typeof data.token !== "string") {
+        throw new Error("A API não retornou um token de acesso válido.");
+      }
+
+      localStorage.setItem("auth_token", data.token);
+      navigate("/", { replace: true });
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Erro ao conectar com o servidor.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGoogleLogin = () => {
     window.open(
@@ -107,7 +145,7 @@ export default function Login() {
           py: 10,
         }}
       >
-        <Stack spacing={2}>
+        <Stack component="form" spacing={2} onSubmit={handleSubmit}>
           <Box
             sx={{
               display: "flex",
@@ -141,11 +179,22 @@ export default function Login() {
             Entrar
           </Typography>
 
+          {successMessage && (
+            <Typography role="status" color="success.main" align="center" variant="body2">
+              {successMessage}
+            </Typography>
+          )}
+
           {/* E-mail */}
           <TextField
             fullWidth
             placeholder="E-mail ou nome de usuário"
             type="email"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
             slotProps={{
               input: {
                 sx: {
@@ -161,6 +210,11 @@ export default function Login() {
             fullWidth
             placeholder="Senha"
             type="password"
+            name="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
             slotProps={{
               input: {
                 sx: {
@@ -185,8 +239,12 @@ export default function Login() {
             }}
           />
 
+          {error && <Typography role="alert" color="error" align="center">{error}</Typography>}
+
           <Button
             fullWidth
+            type="submit"
+            disabled={loading}
             variant="contained"
             color="primary"
             sx={{
@@ -202,7 +260,7 @@ export default function Login() {
               },
             }}
           >
-            Entrar
+            {loading ? "Entrando..." : "Entrar"}
           </Button>
 
           <Box

@@ -11,6 +11,13 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   const response = await fetch(`${apiUrl}${path}`, { ...init, headers });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 401 && token && localStorage.getItem("auth_token") === token) {
+      localStorage.removeItem("auth_token");
+      window.dispatchEvent(new Event("session-expired"));
+    }
+    if (response.status === 403) {
+      throw new Error("Você não tem permissão para realizar esta ação.");
+    }
     throw new Error(data.error || data.message || "Não foi possível concluir a solicitação.");
   }
 

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Divider,
   IconButton,
   Stack,
@@ -13,13 +14,15 @@ import GoogleIcon from "@mui/icons-material/Google";
 import FacebookIcon from "@mui/icons-material/Facebook";
 
 import { colors } from "../../theme/colors";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { useAuth } from "../../auth/useAuth";
 
 export default function Login() {
   
   const navigate = useNavigate()
+  const { login, user, loading: checkingSession } = useAuth();
   const location = useLocation();
   const successMessage = (location.state as { message?: string } | null)?.message;
   const [loading, setLoading] = useState(false);
@@ -33,23 +36,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
-      const response = await fetch(`${apiUrl}/api/login_check`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
-      });
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data.message || data.error || "E-mail ou senha inválidos.");
-      }
-      if (typeof data.token !== "string") {
-        throw new Error("A API não retornou um token de acesso válido.");
-      }
-
-      localStorage.setItem("auth_token", data.token);
-      navigate("/", { replace: true });
+      await login(email, password);
+      navigate("/trails", { replace: true });
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Erro ao conectar com o servidor.");
     } finally {
@@ -64,6 +52,12 @@ export default function Login() {
       "noopener,noreferrer"
     );
   }
+
+  if (checkingSession) {
+    return <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center" }}><CircularProgress aria-label="Verificando sessão" /></Box>;
+  }
+
+  if (user) return <Navigate to="/trails" replace />;
 
   return (
     <Box

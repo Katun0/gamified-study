@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,8 +26,11 @@ final class RegisterController
             return new JsonResponse(['error' => 'Corpo da requisição inválido.'], 400);
         }
 
-        $name = trim((string) ($data['name'] ?? ''));
-        $email = trim((string) ($data['email'] ?? ''));
+        if (!is_array($data) || !is_string($data['name'] ?? null) || !is_string($data['email'] ?? null)) {
+            return new JsonResponse(['error' => 'Informe nome e e-mail válidos.'], 422);
+        }
+        $name = trim($data['name']);
+        $email = strtolower(trim($data['email']));
         $password = $data['password'] ?? null;
 
         if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || !is_string($password) || strlen($password) < 8) {
@@ -40,7 +44,11 @@ final class RegisterController
         $user = (new User())->setName($name)->setEmail($email);
         $user->setPassword($passwordHasher->hashPassword($user, $password));
         $entityManager->persist($user);
-        $entityManager->flush();
+        try {
+            $entityManager->flush();
+        } catch (UniqueConstraintViolationException) {
+            return new JsonResponse(['error' => 'Este e-mail já está cadastrado.'], 409);
+        }
 
         return new JsonResponse(['id' => $user->getId(), 'name' => $user->getName(), 'email' => $user->getEmail()], 201);
     }

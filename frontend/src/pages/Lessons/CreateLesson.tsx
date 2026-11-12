@@ -31,6 +31,7 @@ export default function CreateLesson() {
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [createdLesson, setCreatedLesson] = useState<{ id: number; courseId: number } | null>(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -58,13 +59,15 @@ export default function CreateLesson() {
     if (!courseId) return;
     setError("");
     setSuccess("");
+    setCreatedLesson(null);
     setLoading(true);
     try {
-      await apiRequest("/api/lessons", {
+      const lesson = await apiRequest<{ id: number; courseId: number }>("/api/lessons", {
         method: "POST",
         body: JSON.stringify({ courseId, title: title.trim(), content: content.trim() }),
       });
       setSuccess("Lição cadastrada com sucesso.");
+      setCreatedLesson(lesson);
       setTitle("");
       setContent("");
     } catch (requestError) {
@@ -87,7 +90,7 @@ export default function CreateLesson() {
             <Typography sx={{ color: colors.textSecondary, mt: 1 }}>Escolha um curso e adicione o conteúdo da lição.</Typography>
           </Box>
 
-          {success && <Alert severity="success">{success}</Alert>}
+          {success && <Alert severity="success" action={createdLesson && <Button color="inherit" onClick={() => navigate(`/problems/new?course=${createdLesson.courseId}&lesson=${createdLesson.id}`)}>Adicionar problemas</Button>}>{success}</Alert>}
           {error && <Alert severity="error">{error}</Alert>}
 
           <Stack component="form" spacing={2.5} onSubmit={handleSubmit} sx={{ p: { xs: 2.5, sm: 3.5 }, border: `1px solid ${colors.border}`, borderRadius: 3, bgcolor: colors.surface }}>

@@ -25,8 +25,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, unique: true)]
     private ?string $email = null;
+
+    #[ORM\Column(type: Types::JSON)]
+    private array $roles = [];
 
     #[ORM\Column(type: Types::TEXT)]
     #[ApiProperty(readable: false, writable: true)]
@@ -64,7 +67,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = strtolower(trim($email));
 
         return $this;
     }
@@ -76,7 +79,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        return array_values(array_unique([...$this->roles, 'ROLE_USER']));
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = array_values(array_unique($roles));
+        return $this;
     }
 
     public function eraseCredentials(): void

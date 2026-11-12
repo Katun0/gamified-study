@@ -19,6 +19,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate } from "react-router-dom";
 
 import { colors } from "../../theme/colors";
+import { useAuth } from "../../auth/useAuth";
 
 const languages = [
   {
@@ -51,6 +52,7 @@ const languages = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user, logout, loading } = useAuth();
 
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -146,6 +148,7 @@ export default function Home() {
 
           {/* Navegação */}
 
+          {user?.roles.includes("ROLE_ADMIN") && (
           <Stack
             direction="row"
             spacing={3}
@@ -170,7 +173,7 @@ export default function Home() {
                 },
               }}
             >
-              Trilhas
+              Criar curso
             </Button>
 
             <Button
@@ -186,9 +189,10 @@ export default function Home() {
                 },
               }}
             >
-              Treino
+              Criar lição
             </Button>
           </Stack>
+          )}
 
           {/* Ações */}
 
@@ -199,6 +203,11 @@ export default function Home() {
               sm: 1.5,
             }}
           >
+            {user ? <>
+              <Button variant="contained" onClick={() => navigate("/trails")}>Minha trilha</Button>
+              <Typography sx={{ color: colors.text, alignSelf: "center" }}>{user.name}</Typography>
+              <Button variant="outlined" onClick={logout}>Sair</Button>
+            </> : !loading && <>
             <Button
               variant="outlined"
               onClick={() => navigate("/login")}
@@ -249,6 +258,7 @@ export default function Home() {
             >
               Registrar
             </Button>
+            </>}
           </Stack>
         </Container>
       </Box>

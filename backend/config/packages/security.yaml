@@ -9,7 +9,6 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                property: email
 
     firewalls:
         dev:
@@ -19,6 +18,14 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            stateless: true
+            json_login:
+                check_path: api_login_check
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            jwt: ~
 
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -28,8 +35,9 @@ security:
 
     # Note: Only the *first* matching rule is applied
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: '^/api/(register|login_check)$', roles: PUBLIC_ACCESS }
+        - { path: '^/api/(courses|lessons|problems)(/|$)', methods: [POST, PUT, PATCH, DELETE], roles: ROLE_ADMIN }
+        - { path: '^/api(/|$)', roles: ROLE_USER }
 
 when@test:
     security:

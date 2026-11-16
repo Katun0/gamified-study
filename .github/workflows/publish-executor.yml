@@ -1,0 +1,43 @@
+name: Publicar imagens do executor
+on:
+  workflow_dispatch:
+  push:
+    branches: [Joao, Main]
+    paths:
+      - 'executor/app/**'
+      - 'executor/Dockerfile'
+      - 'executor/.dockerignore'
+      - 'executor/deploy/Dockerfile'
+      - '.github/workflows/publish-executor.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Construir e testar
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build -t gamified-study-python:local executor/deploy
+          docker build -t gamified-study-executor:local executor
+          cd executor
+          RUN_SANDBOX_INTEGRATION=1 python3 -m unittest discover -s tests
+      - name: Publicar no GHCR
+        shell: bash
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          for component in executor python; do
+            image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/gamified-study-$component"
+            docker tag "gamified-study-$component:local" "$image:$GITHUB_SHA"
+            docker push "$image:$GITHUB_SHA"
+          done

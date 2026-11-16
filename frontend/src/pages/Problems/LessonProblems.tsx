@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Alert, Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { apiRequest } from "../../lib/api";
+import { ProblemExercise, TestCaseEditor, type TestCase } from "./ProblemExercise";
 
-export type Problem = { id: number; lessonId: number; title: string; statement: string };
+export type Problem = { id: number; lessonId: number; title: string; statement: string; testCase: TestCase | null };
 
-export default function LessonProblems({ lessonId }: { lessonId: number }) {
+export default function LessonProblems({ lessonId, editTests = false }: { lessonId: number; editTests?: boolean }) {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,6 +25,7 @@ export default function LessonProblems({ lessonId }: { lessonId: number }) {
       <Typography variant="overline" color="primary">Problema {index + 1}</Typography>
       <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 800, overflowWrap: "anywhere" }}>{problem.title}</Typography>
       <Typography sx={{ mt: 1, whiteSpace: "pre-wrap", overflowWrap: "anywhere", lineHeight: 1.8 }}>{problem.statement}</Typography>
+      {editTests ? <TestCaseEditor id={problem.id} test={problem.testCase} /> : <ProblemExercise id={problem.id} test={problem.testCase} />}
     </Box>)}
   </Stack>;
 }

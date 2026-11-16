@@ -76,7 +76,7 @@ function CourseProblemForm({ courseId, initialLessonId }: { courseId: number; in
       <TextField label="Enunciado" placeholder={'Faça um programa que imprima "Hello World" na tela.'} required multiline minRows={6} value={statement} disabled={saving} onChange={(event) => setStatement(event.target.value)} />
       <Button type="submit" variant="contained" disabled={saving || !selectedLesson || !title.trim() || !statement.trim()}>{saving ? "Salvando..." : "Cadastrar problema"}</Button>
     </Stack>
-    {selectedLesson && <LessonProblems key={`${selectedLesson}-${revision}`} lessonId={selectedLesson} />}
+    {selectedLesson && <LessonProblems key={`${selectedLesson}-${revision}`} lessonId={selectedLesson} editTests />}
   </Stack>;
 }
 

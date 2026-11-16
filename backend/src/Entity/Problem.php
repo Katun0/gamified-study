@@ -23,6 +23,21 @@ class Problem
     #[ORM\Column(type: 'text')]
     private string $statement;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $expectedOutput = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $testInput = null;
+
+    public function configureTest(string $input, string $expected): void
+    {
+        $this->testInput = $input;
+        $this->expectedOutput = $expected;
+    }
+
+    public function getExpectedOutput(): ?string { return $this->expectedOutput; }
+    public function getTestInput(): string { return $this->testInput ?? ''; }
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 

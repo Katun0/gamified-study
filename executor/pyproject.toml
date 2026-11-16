@@ -1,0 +1,6 @@
+[project]
+name = "gamified-study-executor"
+version = "0.1.0"
+description = "Estrutura inicial do executor interno de exercícios Python"
+requires-python = ">=3.11"
+dependencies = []

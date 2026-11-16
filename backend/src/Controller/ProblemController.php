@@ -50,6 +50,9 @@ final class ProblemController
         return [
             'id' => $problem->getId(), 'lessonId' => $problem->getLesson()->getId(),
             'title' => $problem->getTitle(), 'statement' => $problem->getStatement(),
+            'testCase' => $problem->getExpectedOutput() === null ? null : [
+                'input' => $problem->getTestInput(), 'expected' => $problem->getExpectedOutput(),
+            ],
             'createdAt' => $problem->getCreatedAt()->format(DATE_ATOM),
         ];
     }

@@ -22,6 +22,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { colors } from "../../theme/colors";
+import { apiUrl } from "../../lib/api";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -46,7 +47,6 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
       const response = await fetch(`${apiUrl}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },

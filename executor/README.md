@@ -4,7 +4,7 @@ Cada execução usa um container Linux descartável. A tela da lição envia có
 
 ## Usar com a trilha
 
-Prepare a imagem conforme indicado abaixo. Na pasta executor, defina EXECUTOR_API_TOKEN no ambiente e inicie o adaptador com `python -m app.api.server`. Ele escuta em 127.0.0.1:8001. Configure o mesmo token em backend/.env.local e reinicie o backend. Para gerar um segredo local use `python -c "import secrets; print(secrets.token_hex(32))"`.
+Configure `EXECUTOR_API_TOKEN` em `backend/.env.local`. O executor local lê esse arquivo ao iniciar. Uma variável de ambiente preenchida tem prioridade, o que permite executar o serviço em outra máquina. A partir da pasta executor, use `py -3.13 -m app.api.server` no Windows. Reinicie os serviços depois de alterar o segredo. Mantenha somente exemplos sem credenciais nos arquivos versionados.
 
 Como administrador, abra Criar problema, selecione a lição e salve a entrada e a saída esperada no problema. Como aluno, abra a mesma lição, digite o programa e clique em Verificar resposta.
 

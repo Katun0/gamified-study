@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, Stack } from "@mui/material";
-import { apiRequest } from "../lib/api";
+import { apiRequest, apiUrl } from "../lib/api";
 
 import { AuthContext, type User } from "./useAuth";
 
@@ -57,7 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
     const response = await fetch(`${apiUrl}/api/login_check`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },

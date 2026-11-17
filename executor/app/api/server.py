@@ -3,6 +3,8 @@
 import hmac
 import json
 import os
+import re
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from app.api.routes import execute
@@ -44,10 +46,28 @@ class Handler(BaseHTTPRequestHandler):
                          "stderr": result.stderr, "exitCode": result.exit_code})
 
 
+def configured_token():
+    token = os.environ.get("EXECUTOR_API_TOKEN", "").strip()
+    if token:
+        return token
+
+    # Em desenvolvimento os dois serviços compartilham o segredo local do Symfony.
+    path = Path(__file__).resolve().parents[3] / "backend" / ".env.local"
+    if path.is_file():
+        for line in reversed(path.read_text(encoding="utf-8-sig").splitlines()):
+            match = re.fullmatch(
+                r"""\s*(?:export\s+)?EXECUTOR_API_TOKEN\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s'"]+))(?:\s+#.*)?\s*""",
+                line,
+            )
+            if match:
+                return next(value for value in match.groups() if value is not None)
+    return None
+
+
 if __name__ == "__main__":
-    token = os.environ.get("EXECUTOR_API_TOKEN")
+    token = configured_token()
     if not token:
-        raise SystemExit("Defina EXECUTOR_API_TOKEN antes de iniciar.")
-    with HTTPServer(("127.0.0.1", int(os.environ.get("EXECUTOR_PORT", "8001"))), Handler) as server:
+        raise SystemExit("Defina EXECUTOR_API_TOKEN no ambiente ou em backend/.env.local.")
+    with HTTPServer((os.environ.get("EXECUTOR_HOST", "127.0.0.1"), int(os.environ.get("EXECUTOR_PORT", "8001"))), Handler) as server:
         server.authorization = ("Bearer " + token).encode()
         server.serve_forever()

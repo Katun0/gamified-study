@@ -416,8 +416,8 @@ export default function Trail() {
                       to={`/problems/new?course=${lesson.courseId}&lesson=${lesson.id}`}
                       sx={{ mt: 2 }}
                     >
-                      Adicionar problema nesta lição
-                    </Button>
+                      Adicionar Desafio nesta lição
+                    </Button>   
                   )}
                 </>
               )}

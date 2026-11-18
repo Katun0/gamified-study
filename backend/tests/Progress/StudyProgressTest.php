@@ -62,8 +62,62 @@ final class StudyProgressTest extends TestCase
         self::assertTrue($state[2]['locked']);
         $state = $progress->course(1, (new User())->setRoles(['ROLE_ADMIN']));
         self::assertFalse($state[1]['problems'][2]['locked']);
-        self::assertFalse($state[2]['locked']);
+        self::assertTrue($state[2]['locked']);
         self::assertFalse($state[2]['completed']);
+        self::assertTrue($state[1]['current']);
+    }
+
+    public function testFourthLessonUnlocksOnlyAfterThirdLessonIsCompleted(): void
+    {
+        $rows = [
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => 1, 'read_id' => null],
+            ['id' => 2, 'difficulty' => 'easy', 'problem_id' => 2, 'solved_id' => 2, 'read_id' => null],
+            ['id' => 3, 'difficulty' => 'easy', 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
+            ['id' => 4, 'difficulty' => 'easy', 'problem_id' => 4, 'solved_id' => null, 'read_id' => null],
+        ];
+        $state = $this->progress($rows)->course(1, new User());
+        self::assertTrue($state[3]['current']);
+        self::assertTrue($state[4]['locked']);
+
+        $rows[2]['solved_id'] = 3;
+        $state = $this->progress($rows)->course(1, new User());
+        self::assertFalse($state[4]['locked']);
+    }
+
+    public function testAdministratorCannotOpenLessonFourBeforeLessonThreeIsCompleted(): void
+    {
+        $course = new Courses();
+        (new \ReflectionProperty(Courses::class, 'id'))->setValue($course, 1);
+        $lesson = (new Lesson())->setCourse($course);
+        (new \ReflectionProperty(Lesson::class, 'id'))->setValue($lesson, 4);
+        $progress = $this->progress([
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => 1, 'read_id' => null],
+            ['id' => 2, 'difficulty' => 'easy', 'problem_id' => 2, 'solved_id' => 2, 'read_id' => null],
+            ['id' => 3, 'difficulty' => 'easy', 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
+            ['id' => 4, 'difficulty' => 'easy', 'problem_id' => 4, 'solved_id' => null, 'read_id' => null],
+        ]);
+
+        $this->expectException(AccessDeniedHttpException::class);
+        $progress->requireLesson($lesson, (new User())->setRoles(['ROLE_ADMIN']));
+    }
+
+    public function testAdministratorCannotOpenProblemInLessonFourBeforeLessonThreeIsCompleted(): void
+    {
+        $course = new Courses();
+        (new \ReflectionProperty(Courses::class, 'id'))->setValue($course, 1);
+        $lesson = (new Lesson())->setCourse($course);
+        (new \ReflectionProperty(Lesson::class, 'id'))->setValue($lesson, 4);
+        $problem = new Problem($lesson, 'Locked', 'Locked');
+        (new \ReflectionProperty(Problem::class, 'id'))->setValue($problem, 4);
+        $progress = $this->progress([
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => 1, 'read_id' => null],
+            ['id' => 2, 'difficulty' => 'easy', 'problem_id' => 2, 'solved_id' => 2, 'read_id' => null],
+            ['id' => 3, 'difficulty' => 'easy', 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
+            ['id' => 4, 'difficulty' => 'easy', 'problem_id' => 4, 'solved_id' => null, 'read_id' => null],
+        ]);
+
+        $this->expectException(AccessDeniedHttpException::class);
+        $progress->requireProblem($problem, (new User())->setRoles(['ROLE_ADMIN']));
     }
 
     public function testLockedProblemCannotCallExecutor(): void

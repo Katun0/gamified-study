@@ -39,14 +39,48 @@ class Problem
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $testInput = null;
 
+    #[ORM\Column(length: 20, options: ['default' => 'stdin_stdout'])]
+    private string $evaluationMode = 'stdin_stdout';
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $functionArguments = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private mixed $expectedReturn = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $expectedReturnType = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $functionTemplate = null;
+
     public function configureTest(string $input, string $expected): void
     {
         $this->testInput = $input;
         $this->expectedOutput = $expected;
+        $this->expectedReturnType = null;
+    }
+
+    public function configureFunctionTest(array $args, mixed $expected, ?string $template = null, ?string $expectedReturnType = null): void
+    {
+        $this->evaluationMode = 'function';
+        $this->functionArguments = $args;
+        $this->expectedReturn = $expected;
+        $this->expectedReturnType = $expectedReturnType;
+        $this->functionTemplate = $template;
     }
 
     public function getExpectedOutput(): ?string { return $this->expectedOutput; }
     public function getTestInput(): string { return $this->testInput ?? ''; }
+
+    public function getEvaluationMode(): string { return $this->evaluationMode; }
+    public function setEvaluationMode(string $mode): void { $this->evaluationMode = $mode; }
+
+    public function getFunctionArguments(): ?array { return $this->functionArguments; }
+    public function getExpectedReturn(): mixed { return $this->expectedReturn; }
+    public function getExpectedReturnType(): ?string { return $this->expectedReturnType; }
+    public function getFunctionTemplate(): ?string { return $this->functionTemplate; }
+    public function setFunctionTemplate(?string $template): void { $this->functionTemplate = $template; }
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;

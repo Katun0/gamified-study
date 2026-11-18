@@ -49,17 +49,17 @@ final class StudyProgress
             }
             if ($lesson['customXp'] !== null) $lesson['xpReward'] = (int) $lesson['customXp'];
             unset($lesson['customXp']);
-            $lesson['locked'] = !$admin && !$previousLessonsCompleted;
+            $lesson['locked'] = !$previousLessonsCompleted;
             $previousProblemsCompleted = true;
             foreach ($lesson['problems'] as &$problem) {
-                $problem['locked'] = !$admin && (!$previousLessonsCompleted || !$previousProblemsCompleted);
+                $problem['locked'] = !$previousLessonsCompleted || (!$admin && !$previousProblemsCompleted);
                 $previousProblemsCompleted = $previousProblemsCompleted && $problem['completed'];
             }
             unset($problem);
             $lesson['completed'] = $lesson['problems'] === [] ? $lesson['read'] : $previousProblemsCompleted;
 
             $lesson['current'] = false;
-            if (!$admin && !$currentFound && !$lesson['completed'] && !$lesson['locked']) {
+            if (!$currentFound && !$lesson['completed'] && !$lesson['locked']) {
                 $lesson['current'] = true;
                 $currentFound = true;
             }

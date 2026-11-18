@@ -9,14 +9,21 @@ final class HttpCodeExecutor implements CodeExecutorInterface
 {
     public function __construct(private HttpClientInterface $http, private string $executorUrl, private string $executorToken) {}
 
-    public function execute(string $code, string $stdin = ''): array
+    public function execute(string $code, string $stdin = '', string $mode = 'stdin_stdout', ?array $funcArgs = null): array
     {
         if ($this->executorToken === '') {
             throw new \RuntimeException('Token do executor ausente.');
         }
         try {
+            $payload = ['code' => $code, 'mode' => $mode];
+            if ($mode === 'function') {
+                $payload['func_args'] = $funcArgs;
+            } else {
+                $payload['stdin'] = $stdin;
+            }
+
             $result = $this->http->request('POST', rtrim($this->executorUrl, '/').'/v1/executions', [
-                'auth_bearer' => $this->executorToken, 'json' => ['code' => $code, 'stdin' => $stdin],
+                'auth_bearer' => $this->executorToken, 'json' => $payload,
                 'max_redirects' => 0, 'max_duration' => 45, 'timeout' => 45,
             ])->toArray();
         } catch (ExceptionInterface $e) {

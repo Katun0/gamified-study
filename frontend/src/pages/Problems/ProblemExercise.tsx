@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -15,6 +15,7 @@ import {
 } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
 import { useAuth } from "../../auth/useAuth";
+const PythonEditor = lazy(() => import("../../components/PythonEditor"));
 export type TestCase = {
   evaluationMode?: "stdin_stdout" | "function";
   input?: string;
@@ -58,7 +59,10 @@ export function ProblemExercise({
   const [result, setResult] = useState<Result | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const checking = useRef(false);
   async function check() {
+    if (checking.current || !test || !code.trim()) return;
+    checking.current = true;
     setBusy(true);
     setResult(null);
     setError("");
@@ -79,6 +83,7 @@ export function ProblemExercise({
           : "Não foi possível verificar a resposta.",
       );
     } finally {
+      checking.current = false;
       setBusy(false);
     }
   }
@@ -96,22 +101,18 @@ export function ProblemExercise({
       >
         <CodeRounded fontSize="small" /> EDITOR PYTHON
       </Typography>
-      <TextField
-        className="sq-code-input"
-        label="Seu código Python"
-        multiline
-        minRows={6}
+      <Suspense fallback={<Typography role="status">Carregando editor Python…</Typography>}>
+      <PythonEditor
         value={code}
         disabled={busy}
-        slotProps={{
-          htmlInput: { spellCheck: false, style: { fontFamily: "monospace" } },
-        }}
-        onChange={(e) => {
-          setCode(e.target.value);
+        onRun={check}
+        onChange={(value) => {
+          setCode(value);
           setResult(null);
           setError("");
         }}
       />
+      </Suspense>
       {!test && (
         <Alert severity="info">
           A verificação ficará disponível quando o caso de teste for cadastrado.

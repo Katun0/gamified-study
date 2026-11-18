@@ -1,0 +1,9 @@
+.sq-python-editor { min-width: 0; overflow: hidden; border: 1px solid #334155; border-radius: 12px; background: #0b1220; }
+.sq-python-editor-header, .sq-python-editor-status { display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; color: #b8c7db; background: #111c2e; font-size: 12px; }
+.sq-python-editor-header { border-bottom: 1px solid #334155; }
+.sq-python-editor-header span:first-child { color: #7dd3fc; font-family: monospace; }
+.sq-python-editor-content { min-width: 0; }
+.sq-python-editor-content .cm-editor { height: 320px; }
+.sq-python-editor-status { border-top: 1px solid #223047; flex-wrap: wrap; }
+.sq-python-editor-help { color: #94a3b8; padding: 10px 16px; font-size: 12px; line-height: 1.7; }
+@media (max-width: 600px) { .sq-python-editor-content .cm-editor { height: 280px; } }

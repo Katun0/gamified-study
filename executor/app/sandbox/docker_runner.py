@@ -87,6 +87,13 @@ class DockerSandboxRunner:
             raise ValueError("Código excede o limite permitido.")
         if len(request.stdin.encode("utf-8")) > limits.input_bytes:
             raise ValueError("Entrada excede o limite permitido.")
+        if request.mode not in ("stdin_stdout", "function"):
+            raise ValueError("Modo de execução inválido.")
+        if request.mode == "function":
+            if request.func_args is not None and not isinstance(request.func_args, list):
+                raise ValueError("Argumentos devem ser um array JSON.")
+            if len(json.dumps(request.func_args, allow_nan=False).encode("utf-8")) > limits.input_bytes:
+                raise ValueError("Argumentos excedem o limite permitido.")
         self.check_available()
         name = "study-sandbox-" + uuid.uuid4().hex
         process = None
@@ -145,7 +152,9 @@ class DockerSandboxRunner:
             try:
                 payload_data = {
                     "code": request.code,
-                    "mode": request.mode
+                    "mode": request.mode,
+                    "output_limit": limits.output_bytes,
+                    "memory_limit": limits.memory_megabytes
                 }
                 if request.mode == "function":
                     payload_data["func_args"] = request.func_args
@@ -203,8 +212,8 @@ class DockerSandboxRunner:
             raise ExecutionUnavailable("Resultado inválido do container.") from exc
         if io_failed.is_set() and not forced_status:
             raise ExecutionUnavailable("Falha na comunicação com o container.")
-        status = forced_status or ("output_limit" if exceeded.is_set() else
-                                  "memory_limit" if state.get("OOMKilled") else
+        status = forced_status or ("output_limit" if exceeded.is_set() or exit_code == 121 else
+                                  "memory_limit" if state.get("OOMKilled") or exit_code == 120 else
                                   "completed" if exit_code == 0 else "runtime_error")
         
         stdout_str = output[0].decode("utf-8", errors="replace")
@@ -212,31 +221,17 @@ class DockerSandboxRunner:
         result_value = None
         
         if request.mode == "function" and status == "completed":
-            marker = "\n---RESULT_START---\n"
-            if marker in stdout_str:
-                parts = stdout_str.split(marker)
-                stdout_str = parts[0]
-                try:
-                    result_data = json.loads(parts[1])
-                    result_value = result_data.get("result")
-                except (json.JSONDecodeError, KeyError, IndexError):
-                    status = "runtime_error"
-                    stderr_str += "\nErro ao decodificar o resultado da função."
-            else:
-                # Se não encontrar o marcador mas completou, talvez não tenha prints e o marcador esteja no início
-                marker_start = "---RESULT_START---\n"
-                if stdout_str.startswith(marker_start):
-                    parts = stdout_str.split(marker_start)
-                    stdout_str = ""
-                    try:
-                        result_data = json.loads(parts[1])
-                        result_value = result_data.get("result")
-                    except (json.JSONDecodeError, KeyError, IndexError):
-                        status = "runtime_error"
-                        stderr_str += "\nErro ao decodificar o resultado da função."
-                else:
-                    status = "runtime_error"
-                    stderr_str += "\nErro: O marcador de resultado da função não foi encontrado."
+            try:
+                result_data = json.loads(stdout_str, parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
+                if not isinstance(result_data, dict) or "result" not in result_data:
+                    raise ValueError("Retorno ausente")
+                result_value = result_data["result"]
+                # A saída de depuração foi redirecionada dentro do container.
+                stdout_str, stderr_str = stderr_str, ""
+            except (ValueError, TypeError):
+                status = "runtime_error"
+                stdout_str = ""
+                stderr_str += "\nRetorno de solution ausente ou inválido."
 
         return ExecutionResult(status, stdout_str, stderr_str,
                                None if forced_status else exit_code,

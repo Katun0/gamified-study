@@ -33,6 +33,9 @@ final class HttpCodeExecutor implements CodeExecutorInterface
             || !is_string($result['stdout'] ?? null) || !is_string($result['stderr'] ?? null)) {
             throw new \RuntimeException('Resultado inválido do executor.');
         }
+        if ($mode === 'function' && $result['status'] === 'completed' && !array_key_exists('result', $result)) {
+            throw new \RuntimeException('Executor não retornou o resultado de solution.');
+        }
         return $result;
     }
 }

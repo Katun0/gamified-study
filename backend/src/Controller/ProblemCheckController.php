@@ -25,7 +25,7 @@ final class ProblemCheckController
             if ($expectedReturnType !== null && $expectedReturnType !== 'string') {
                 return new JsonResponse(['error' => 'Selecione um tipo de retorno válido.'], 422);
             }
-            if (!isset($data['functionArguments']) || !is_array($data['functionArguments'])) {
+            if (!isset($data['functionArguments']) || !is_array($data['functionArguments']) || !array_is_list($data['functionArguments'])) {
                 return new JsonResponse(['error' => 'Argumentos da função devem ser um array JSON.'], 422);
             }
             if ($expectedReturnType !== 'string' && !array_key_exists('expectedReturn', $data)) {
@@ -126,6 +126,10 @@ final class ProblemCheckController
 
     private static function compareStructural(mixed $actual, mixed $expected): bool
     {
+        // Strings numéricas também devem preservar seu texto exato ("01" != "1").
+        if (is_string($actual) || is_string($expected)) {
+            return $actual === $expected;
+        }
         // Se ambos são numéricos, comparamos o valor.
         // O requisito diz que 1 (int) e 1.0 (float) devem ser tratados conforme documentado.
         // Se quisermos aceitar 1 == 1.0, removeríamos a verificação de tipo para números.

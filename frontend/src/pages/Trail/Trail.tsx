@@ -25,6 +25,7 @@ import {
 import { apiRequest } from "../../lib/api";
 import { useAuth, type Progression } from "../../auth/useAuth";
 import "./Trail.css";
+import LessonContent from "../../components/LessonContent";
 import StudySidebar from "../../components/layout/StudySidebar";
 import LessonProblems from "../Problems/LessonProblems";
 
@@ -293,7 +294,6 @@ export default function Trail() {
                                     ? "Atual"
                                     : "Disponível"}
                             </span>
-                            <span>{item.xpEarned > 0 ? `${item.xpEarned} XP conquistados` : `${item.xpReward} XP`}</span>
                           </li>
                         ))}
                       </ol>
@@ -384,7 +384,9 @@ export default function Trail() {
                 </Alert>
               ) : (
                 <>
-                  <div className="trail-lesson-content">{lesson.content}</div>
+                  <div className="trail-lesson-content">
+                    <LessonContent content={lesson.content} />
+                  </div>
                   <LessonProblems
                     key={lesson.id}
                     lessonId={lesson.id}

@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Lesson;
 use App\Entity\Problem;
+use App\Entity\User;
+use App\Progress\StudyProgress;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,12 +15,21 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProblemController
 {
     #[Route('/api/lessons/{id}/problems', name: 'api_lesson_problems', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function list(int $id, EntityManagerInterface $em): JsonResponse
+    public function list(int $id, EntityManagerInterface $em, StudyProgress $progress, #[CurrentUser] User $user): JsonResponse
     {
         $lesson = $em->find(Lesson::class, $id);
         if (!$lesson) return new JsonResponse(['error' => 'Lição não encontrada.'], 404);
+        $state = $progress->requireLesson($lesson, $user);
         $problems = $em->getRepository(Problem::class)->findBy(['lesson' => $lesson], ['id' => 'ASC']);
-        return new JsonResponse(array_map($this->serialize(...), $problems));
+        return new JsonResponse(array_map(function (Problem $problem) use ($state): array {
+            $data = $this->serialize($problem);
+            $status = $state['problems'][$problem->getId()];
+            if ($status['locked']) {
+                $data['statement'] = '';
+                $data['testCase'] = null;
+            }
+            return [...$data, ...$status];
+        }, $problems), headers: ['Cache-Control' => 'no-store']);
     }
 
     #[Route('/api/problems', name: 'api_problems_create', methods: ['POST'])]

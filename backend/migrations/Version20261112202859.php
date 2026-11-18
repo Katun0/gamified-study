@@ -20,11 +20,11 @@ final class Version20261112202859 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE lesson DROP CONSTRAINT fk_f87474f3eac3334a');
-        $this->addSql('DROP TABLE lesson');
+        // Only older installations had the singular table; fresh databases use lessons.
+        $this->addSql('DROP TABLE IF EXISTS lesson');
         $this->addSql('ALTER TABLE courses ALTER description DROP DEFAULT');
         $this->addSql('ALTER INDEX idx_5c7d8f1b591cc992 RENAME TO IDX_3F4218D9591CC992');
-        $this->addSql('ALTER TABLE "user" DROP avatarurl');
+        $this->addSql('ALTER TABLE "user" DROP COLUMN IF EXISTS avatarurl');
         $this->addSql('ALTER TABLE "user" ALTER password TYPE TEXT');
         $this->addSql('ALTER TABLE "user" ALTER created_at DROP DEFAULT');
         $this->addSql('ALTER TABLE "user" ALTER updated_at DROP DEFAULT');

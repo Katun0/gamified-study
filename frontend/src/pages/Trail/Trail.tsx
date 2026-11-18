@@ -28,7 +28,7 @@ import StudySidebar from "../../components/layout/StudySidebar";
 import LessonProblems from "../Problems/LessonProblems";
 
 type Course = { id: number; name: string; description: string };
-type Lesson = { id: number; title: string; content: string; courseId: number };
+type Lesson = { id: number; title: string; content: string; courseId: number; locked: boolean; completed: boolean; current: boolean; problemCount: number };
 
 export default function Trail() {
   const { user } = useAuth();
@@ -41,6 +41,8 @@ export default function Trail() {
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const [opened, setOpened] = useState<number | null>(null);
+  const [progressRevision, setProgressRevision] = useState(0);
+  const [completing, setCompleting] = useState(false);
   const requestedId = Number(params.get("course"));
   const course = courses.find((item) => item.id === requestedId) ?? courses[0];
   const courseId = course?.id;
@@ -104,6 +106,19 @@ export default function Trail() {
     setLoadingLessons(true);
     setError("");
     setParams({ course: id });
+  };
+  const completeReading = async () => {
+    if (!lesson) return;
+    setCompleting(true);
+    setError("");
+    try {
+      await apiRequest(`/api/lessons/${lesson.id}/complete`, { method: "POST" });
+      setProgressRevision((value) => value + 1);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Não foi possível concluir a lição.");
+    } finally {
+      setCompleting(false);
+    }
   };
   const retryLoading = () => {
     setError("");

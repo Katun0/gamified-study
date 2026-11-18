@@ -1,14 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
-  Box,
   Button,
-  Container,
+  CircularProgress,
   FormControl,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -16,130 +12,199 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { ArrowForwardRounded, MenuBookRounded } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
-import { colors } from "../../theme/colors";
+import AdminLayout from "../../components/layout/AdminLayout";
 
 type Course = { id: number; name: string; description: string };
-
 export default function CreateLesson() {
   const navigate = useNavigate();
   const location = useLocation();
-  const initialCourseId = (location.state as { courseId?: number } | null)?.courseId;
+  const initialCourseId = (location.state as { courseId?: number } | null)
+    ?.courseId;
   const [courses, setCourses] = useState<Course[]>([]);
   const [courseId, setCourseId] = useState<number | "">(initialCourseId ?? "");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [createdLesson, setCreatedLesson] = useState<{ id: number; courseId: number } | null>(null);
+  const [createdLesson, setCreatedLesson] = useState<{
+    id: number;
+    courseId: number;
+  } | null>(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     let active = true;
     apiRequest<Course[]>("/api/courses")
       .then((items) => {
         if (!active) return;
         setCourses(items);
-        if (initialCourseId && items.some((course) => course.id === initialCourseId)) {
+        if (initialCourseId && items.some((c) => c.id === initialCourseId))
           setCourseId(initialCourseId);
-        }
       })
-      .catch((requestError) => {
-        if (active) setError(requestError instanceof Error ? requestError.message : "Não foi possível carregar os cursos.");
+      .catch((cause) => {
+        if (active)
+          setError(
+            cause instanceof Error
+              ? cause.message
+              : "Não foi possível carregar os cursos.",
+          );
       })
       .finally(() => {
         if (active) setLoadingCourses(false);
       });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [initialCourseId]);
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!courseId) return;
+    if (!courseId || loading) return;
     setError("");
     setSuccess("");
     setCreatedLesson(null);
     setLoading(true);
     try {
-      const lesson = await apiRequest<{ id: number; courseId: number }>("/api/lessons", {
-        method: "POST",
-        body: JSON.stringify({ courseId, title: title.trim(), content: content.trim() }),
-      });
-      setSuccess("Lição cadastrada com sucesso.");
+      const lesson = await apiRequest<{ id: number; courseId: number }>(
+        "/api/lessons",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            courseId,
+            title: title.trim(),
+            content: content.trim(),
+          }),
+        },
+      );
+      setSuccess("Lição cadastrada com sucesso!");
       setCreatedLesson(lesson);
       setTitle("");
       setContent("");
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Erro ao cadastrar lição.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Erro ao cadastrar lição.",
+      );
     } finally {
       setLoading(false);
     }
   };
-
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: colors.background, color: colors.text, py: { xs: 3, sm: 6 } }}>
-      <Container maxWidth="sm">
-        <IconButton aria-label="Voltar para o início" onClick={() => navigate("/")} sx={{ color: colors.textSecondary, mb: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
-        <Stack spacing={3}>
-          <Box>
-            <EditNoteOutlinedIcon sx={{ color: colors.secondary, fontSize: 40, mb: 1 }} />
-            <Typography component="h1" variant="h4" sx={{ fontWeight: 800 }}>Cadastrar lição</Typography>
-            <Typography sx={{ color: colors.textSecondary, mt: 1 }}>Escolha um curso e adicione o conteúdo da lição.</Typography>
-          </Box>
-
-          {success && <Alert severity="success" action={createdLesson && <Button color="inherit" onClick={() => navigate(`/problems/new?course=${createdLesson.courseId}&lesson=${createdLesson.id}`)}>Adicionar problemas</Button>}>{success}</Alert>}
-          {error && <Alert severity="error">{error}</Alert>}
-
-          <Stack component="form" spacing={2.5} onSubmit={handleSubmit} sx={{ p: { xs: 2.5, sm: 3.5 }, border: `1px solid ${colors.border}`, borderRadius: 3, bgcolor: colors.surface }}>
-            <FormControl fullWidth required>
-              <InputLabel id="lesson-course-label">Curso</InputLabel>
-              <Select
-                labelId="lesson-course-label"
-                label="Curso"
-                value={courseId}
-                onChange={(event) => setCourseId(Number(event.target.value))}
-                disabled={loadingCourses || courses.length === 0}
-              >
-                {courses.map((course) => <MenuItem key={course.id} value={course.id}>{course.name}</MenuItem>)}
-              </Select>
-            </FormControl>
-            {!loadingCourses && courses.length === 0 && (
-              <Alert severity="info" action={<Button color="inherit" size="small" onClick={() => navigate("/courses/new")}>Cadastrar</Button>}>
-                Cadastre um curso antes de criar uma lição.
-              </Alert>
-            )}
-            <TextField
-              label="Título da lição"
-              placeholder="Ex.: Variáveis e tipos de dados"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              required
-              fullWidth
-              slotProps={{ htmlInput: { maxLength: 255 } }}
-            />
-            <TextField
-              label="Conteúdo"
-              placeholder="Escreva o conteúdo da lição..."
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              required
-              multiline
-              minRows={7}
-              fullWidth
-            />
-            <Button type="submit" variant="contained" disabled={loading || loadingCourses || !courseId} sx={{ minHeight: 48, fontWeight: 800 }}>
-              {loading ? "Salvando..." : "Cadastrar lição"}
-            </Button>
-          </Stack>
-
-          <Button onClick={() => navigate("/courses/new")} sx={{ color: colors.primary, alignSelf: "center" }}>
-            Ir para cadastro de curso
+    <AdminLayout
+      current="lessons"
+      eyebrow="ETAPA 02 · CONHECIMENTO"
+      title="Criar uma lição"
+      description="Divida o aprendizado em etapas curtas e envolventes. Cada lição é uma nova conquista."
+      icon={<MenuBookRounded />}
+    >
+      <Stack spacing={3} sx={{ maxWidth: 760 }}>
+        {success && (
+          <Alert
+            severity="success"
+            action={
+              createdLesson && (
+                <Button
+                  color="inherit"
+                  onClick={() =>
+                    navigate(
+                      `/problems/new?course=${createdLesson.courseId}&lesson=${createdLesson.id}`,
+                    )
+                  }
+                >
+                  Adicionar desafios
+                </Button>
+              )
+            }
+          >
+            {success}
+          </Alert>
+        )}
+        {error && <Alert severity="error">{error}</Alert>}
+        <Stack
+          component="form"
+          onSubmit={handleSubmit}
+          spacing={3}
+          className="sq-admin-panel"
+        >
+          <Typography sx={{ fontWeight: 850, fontSize: 19 }}>
+            Conteúdo da missão
+          </Typography>
+          <FormControl fullWidth required>
+            <InputLabel id="lesson-course-label">Curso</InputLabel>
+            <Select
+              labelId="lesson-course-label"
+              label="Curso"
+              value={courseId}
+              onChange={(e) => setCourseId(Number(e.target.value))}
+              disabled={loadingCourses || courses.length === 0}
+            >
+              {courses.map((c) => (
+                <MenuItem value={c.id} key={c.id}>
+                  {c.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {loadingCourses && (
+            <CircularProgress size={22} aria-label="Carregando cursos" />
+          )}
+          {!loadingCourses && courses.length === 0 && (
+            <Alert
+              severity="info"
+              action={
+                <Button component={Link} to="/courses/new" color="inherit">
+                  Criar curso
+                </Button>
+              }
+            >
+              Comece cadastrando um curso.
+            </Alert>
+          )}
+          <TextField
+            label="Título da lição"
+            placeholder="Ex.: Variáveis e tipos de dados"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            fullWidth
+            slotProps={{ htmlInput: { maxLength: 255 } }}
+          />
+          <TextField
+            label="Material da lição"
+            placeholder="Explique os conceitos e apresente exemplos..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+            multiline
+            minRows={10}
+            fullWidth
+            helperText="O estudante verá este conteúdo antes de resolver os desafios."
+          />
+          <Button
+            className="sq-admin-submit"
+            type="submit"
+            variant="contained"
+            disabled={
+              loading ||
+              loadingCourses ||
+              !courseId ||
+              !title.trim() ||
+              !content.trim()
+            }
+          >
+            {loading ? "Salvando lição..." : "Publicar lição"}
           </Button>
         </Stack>
-      </Container>
-    </Box>
+        <Button
+          className="sq-admin-link"
+          component={Link}
+          to="/courses/new"
+          endIcon={<ArrowForwardRounded />}
+          sx={{ alignSelf: "flex-start" }}
+        >
+          Cadastrar outro curso
+        </Button>
+      </Stack>
+    </AdminLayout>
   );
 }

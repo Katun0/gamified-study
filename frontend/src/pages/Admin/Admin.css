@@ -1,0 +1,35 @@
+.sq-admin-app { background: #0b1020; color: #f8fafc; }
+.sq-admin-main { max-width: 1080px; margin: auto; padding: clamp(24px,4vw,54px); }
+.sq-admin-heading { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:32px; }
+.sq-admin-heading h1 { font-size: clamp(26px,3.1vw,40px); line-height:1.14; letter-spacing:-1px; font-weight:850; margin:8px 0 12px; }
+.sq-admin-heading .sq-admin-description { color:#abb7cf; max-width:600px; font-size:14px; line-height:1.8; }
+.sq-admin-eyebrow { color:#a3e635; font-size:11px !important; font-weight:850 !important; letter-spacing:1.8px !important; text-transform:uppercase; }
+.sq-admin-hero-icon { width:82px; height:82px; flex-shrink:0; border-radius:24px; display:grid; place-items:center; background:#2c2155; color:#cdb7ff; transform:rotate(7deg); border:1px solid #564186; box-shadow:0 6px 0 #1c1735; }
+.sq-admin-hero-icon svg { font-size:43px; }
+.sq-admin-top-icon { display:inline-flex; color:#a3e635; }
+.sq-admin-panel { background: #151d31; border:1px solid #34415c; border-bottom:4px solid #28334c; border-radius:22px; padding:clamp(20px,3vw,32px); }
+.sq-admin-panel .MuiOutlinedInput-root { background:#0f172a; border-radius:13px; }
+.sq-admin-panel .MuiFormLabel-root { color:#b6c3d9; }
+.sq-admin-panel .MuiFormHelperText-root { color:#a5b4cd; }
+.sq-admin-panel .MuiOutlinedInput-notchedOutline { border-color:#3d4965; }
+.sq-admin-panel .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color:#8b5cf6; }
+.sq-admin-submit.MuiButton-root { border-radius:14px; min-height:52px; font-weight:850; background:#a3e635; color:#1b280b; box-shadow:0 5px 0 #628c1b; }
+.sq-admin-submit.MuiButton-root:hover { background:#b8f15c; }
+.sq-admin-submit.MuiButton-root:disabled { background:#536344; color:#c4cfb7; box-shadow:none; }
+.sq-admin-link.MuiButton-root { color:#cbb5ff; font-weight:750; }
+.sq-admin-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.sq-admin-card { border:1px solid #35415c; border-bottom:5px solid #29324c; border-radius:22px; background:#151d31; padding:26px; display:flex; flex-direction:column; gap:14px; min-height:285px; transition:transform .2s,border-color .2s; }
+.sq-admin-card:hover { transform:translateY(-4px); border-color:#8665e2; }
+.sq-admin-card-icon { width:59px;height:59px;display:grid;place-items:center;border-radius:17px;background:#33265a;color:#d6c3ff; }
+.sq-admin-card-icon svg { font-size:31px; }
+.sq-admin-card h2 { margin:0;font-size:21px;letter-spacing:-.5px; }
+.sq-admin-card p { margin:0;color:#a9b8d0;font-size:13px;line-height:1.7; flex:1; }
+.sq-admin-card a { display:flex;align-items:center;gap:8px;font-weight:850;color:#a3e635;text-decoration:none; }
+.sq-admin-helper { border:1px dashed #4b5b76;border-radius:18px;padding:18px 22px;color:#b8c7db;font-size:13px;line-height:1.7;margin-top:22px; }
+.sq-problem-card { background:#10182b;border:1px solid #364360;border-radius:18px;padding:24px; }
+.sq-problem-card .MuiOutlinedInput-root { background:#0b1221; }
+.sq-problem-card-title { color:#a3e635;font-size:11px;font-weight:850;letter-spacing:1.6px; }
+.sq-code-input textarea { font-family:"Cascadia Code","Fira Code",Consolas,monospace; font-size:13px; line-height:1.7; }
+@media(max-width:900px) { .sq-admin-grid { grid-template-columns:1fr; } .sq-admin-card { min-height:210px; } }
+@media(max-width:600px) { .sq-admin-main { padding:24px 16px; } .sq-admin-heading { align-items:flex-start; } .sq-admin-hero-icon { width:54px;height:54px;border-radius:14px; } .sq-admin-hero-icon svg { font-size:29px; } }
+@media(prefers-reduced-motion:reduce) { .sq-admin-card { transition:none; } }

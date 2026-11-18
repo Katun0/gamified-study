@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Lesson;
 use App\Entity\Problem;
+use App\Entity\ProblemDifficulty;
 use App\Entity\User;
 use App\Progress\StudyProgress;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -46,15 +47,35 @@ final class ProblemController
         }
         $title = trim($data['title']);
         $statement = trim($data['statement']);
+        $difficultyValue = array_key_exists('difficulty', $data) ? $data['difficulty'] : 'easy';
+        $difficulty = is_string($difficultyValue) ? ProblemDifficulty::tryFrom($difficultyValue) : null;
+        if ($difficulty === null) {
+            return new JsonResponse(['error' => 'Selecione uma dificuldade válida.'], 422);
+        }
         if ($title === '' || mb_strlen($title) > 255 || $statement === '') {
             return new JsonResponse(['error' => 'Informe um título de até 255 caracteres e um enunciado não vazio.'], 422);
         }
         $lesson = $em->find(Lesson::class, $data['lessonId']);
         if (!$lesson) return new JsonResponse(['error' => 'Lição não encontrada.'], 404);
         $problem = new Problem($lesson, $title, $statement);
+        $problem->setDifficulty($difficulty);
         $em->persist($problem);
         $em->flush();
         return new JsonResponse($this->serialize($problem), 201);
+    }
+
+    #[Route('/api/problems/{id<\d+>}/difficulty', methods: ['PATCH'])]
+    public function changeDifficulty(Problem $problem, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $data = $request->toArray();
+        $value = $data['difficulty'] ?? null;
+        $difficulty = is_string($value) ? ProblemDifficulty::tryFrom($value) : null;
+        if ($difficulty === null) {
+            return new JsonResponse(['error' => 'Selecione uma dificuldade válida.'], 422);
+        }
+        $problem->setDifficulty($difficulty);
+        $em->flush();
+        return new JsonResponse($this->serialize($problem));
     }
 
     private function serialize(Problem $problem): array
@@ -62,6 +83,7 @@ final class ProblemController
         return [
             'id' => $problem->getId(), 'lessonId' => $problem->getLesson()->getId(),
             'title' => $problem->getTitle(), 'statement' => $problem->getStatement(),
+            'difficulty' => $problem->getDifficulty()->value, 'xpReward' => $problem->getDifficulty()->xp(),
             'testCase' => $problem->getExpectedOutput() === null ? null : [
                 'input' => $problem->getTestInput(), 'expected' => $problem->getExpectedOutput(),
             ],

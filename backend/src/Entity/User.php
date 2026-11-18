@@ -43,6 +43,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ApiProperty(writable: false)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(name: 'total_xp', options: ['default' => 0])]
+    private int $totalXp = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -124,6 +127,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getTotalXp(): int
+    {
+        return $this->totalXp;
+    }
+
+    public function setTotalXp(int $totalXp): static
+    {
+        $this->totalXp = $totalXp;
+
+        return $this;
+    }
+
+    public function addXp(int $xp): static
+    {
+        $this->totalXp += $xp;
 
         return $this;
     }

@@ -27,6 +27,17 @@ class Lesson
     #[ORM\Column(name: 'created_at')]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(length: 10, options: ['default' => 'easy'])]
+    private string $difficulty = 'easy';
+
+    #[ORM\Column(nullable: true)]
+    private ?int $xpReward = null;
+
+    public function getDifficulty(): string { return $this->difficulty; }
+    public function setDifficulty(string $difficulty): static { $this->difficulty = $difficulty; return $this; }
+    public function getXpReward(): ?int { return $this->xpReward; }
+    public function setXpReward(?int $xpReward): static { $this->xpReward = $xpReward; return $this; }
+
     public function getId(): ?int
     {
         return $this->id;

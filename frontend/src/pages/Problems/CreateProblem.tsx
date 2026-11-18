@@ -14,6 +14,7 @@ import { ArrowForwardRounded, TerminalRounded } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
 import AdminLayout from "../../components/layout/AdminLayout";
 import LessonProblems from "./LessonProblems";
+import { difficultyLabels, type Difficulty } from "./difficulty";
 
 type Course = { id: number; name: string };
 type Lesson = { id: number; title: string };
@@ -123,6 +124,7 @@ function CourseProblemForm({
   const [lessonId, setLessonId] = useState(initialLessonId || 0);
   const [title, setTitle] = useState("");
   const [statement, setStatement] = useState("");
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState("");
@@ -163,6 +165,7 @@ function CourseProblemForm({
           lessonId: selectedLesson,
           title: title.trim(),
           statement: statement.trim(),
+          difficulty,
         }),
       });
       setSuccess(
@@ -263,6 +266,10 @@ function CourseProblemForm({
           onChange={(e) => setStatement(e.target.value)}
           helperText="Descreva claramente o objetivo e a saída esperada."
         />
+        <TextField select label="Dificuldade" value={difficulty} disabled={saving}
+          onChange={(event) => setDifficulty(event.target.value as Difficulty)}>
+          {Object.entries(difficultyLabels).map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
+        </TextField>
         <Button
           className="sq-admin-submit"
           type="submit"

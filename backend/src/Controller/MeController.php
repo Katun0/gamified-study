@@ -17,6 +17,7 @@ final class MeController
             'name' => $user->getName(),
             'email' => $user->getEmail(),
             'roles' => $user->getRoles(),
+            'totalXp' => $user->getTotalXp(),
         ], headers: ['Cache-Control' => 'no-store']);
     }
 }

@@ -98,6 +98,7 @@ export default function StudySidebar({ current }: Props) {
         <div>
           <strong>{user?.name || "Estudante"}</strong>
           <small>{admin ? "Criador de missões" : "Um passo de cada vez"}</small>
+          <small aria-live="polite">{(user?.totalXp ?? 0).toLocaleString("pt-BR")} XP conquistados</small>
         </div>
         <button aria-label="Sair da conta" onClick={leave}>
           <LogoutRounded />

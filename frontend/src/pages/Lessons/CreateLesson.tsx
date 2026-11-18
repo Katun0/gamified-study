@@ -15,6 +15,9 @@ import {
 import { ArrowForwardRounded, MenuBookRounded } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
 import AdminLayout from "../../components/layout/AdminLayout";
+import LessonRewardFields from "./LessonRewardFields";
+import ExistingLessonRewards from "./ExistingLessonRewards";
+import type { Difficulty } from "../Problems/difficulty";
 
 type Course = { id: number; name: string; description: string };
 export default function CreateLesson() {
@@ -26,6 +29,9 @@ export default function CreateLesson() {
   const [courseId, setCourseId] = useState<number | "">(initialCourseId ?? "");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [xp, setXp] = useState("");
+  const [revision, setRevision] = useState(0);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [createdLesson, setCreatedLesson] = useState<{
@@ -72,6 +78,8 @@ export default function CreateLesson() {
           method: "POST",
           body: JSON.stringify({
             courseId,
+            difficulty,
+            xpReward: xp === "" ? null : Number(xp),
             title: title.trim(),
             content: content.trim(),
           }),
@@ -79,6 +87,7 @@ export default function CreateLesson() {
       );
       setSuccess("Lição cadastrada com sucesso!");
       setCreatedLesson(lesson);
+      setRevision((value) => value + 1);
       setTitle("");
       setContent("");
     } catch (cause) {
@@ -129,6 +138,7 @@ export default function CreateLesson() {
           <Typography sx={{ fontWeight: 850, fontSize: 19 }}>
             Conteúdo da missão
           </Typography>
+          <LessonRewardFields difficulty={difficulty} xp={xp} onDifficulty={setDifficulty} onXp={setXp} disabled={loading} />
           <FormControl fullWidth required>
             <InputLabel id="lesson-course-label">Curso</InputLabel>
             <Select
@@ -195,6 +205,7 @@ export default function CreateLesson() {
             {loading ? "Salvando lição..." : "Publicar lição"}
           </Button>
         </Stack>
+        {courseId !== "" && <ExistingLessonRewards key={courseId} courseId={courseId} revision={revision} />}
         <Button
           className="sq-admin-link"
           component={Link}

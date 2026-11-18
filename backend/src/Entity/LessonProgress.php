@@ -21,4 +21,7 @@ class LessonProgress
 
     #[ORM\Column(name: 'completed_at')]
     private \DateTimeImmutable $completedAt;
+
+    #[ORM\Column(name: 'xp_earned', options: ['default' => 100])]
+    private int $xpEarned = 100;
 }

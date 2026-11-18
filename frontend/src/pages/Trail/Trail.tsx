@@ -16,6 +16,7 @@ import {
   Close,
   CodeRounded,
   FlagRounded,
+  LockRounded,
   MenuBookRounded,
   RouteRounded,
   SchoolRounded,
@@ -28,10 +29,21 @@ import StudySidebar from "../../components/layout/StudySidebar";
 import LessonProblems from "../Problems/LessonProblems";
 
 type Course = { id: number; name: string; description: string };
-type Lesson = { id: number; title: string; content: string; courseId: number; locked: boolean; completed: boolean; current: boolean; problemCount: number };
+type Lesson = {
+  id: number;
+  title: string;
+  content: string;
+  courseId: number;
+  locked: boolean;
+  completed: boolean;
+  current: boolean;
+  problemCount: number;
+  xpReward: number;
+  xpEarned: number;
+};
 
 export default function Trail() {
-  const { user } = useAuth();
+  const { user, updateTotalXp } = useAuth();
   const [params, setParams] = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
   const [lessonData, setLessons] = useState<Lesson[]>([]);
@@ -41,8 +53,8 @@ export default function Trail() {
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const [opened, setOpened] = useState<number | null>(null);
-  // const [progressRevision, setProgressRevision] = useState(0);
-  // const [completing, setCompleting] = useState(false);
+  const [progressRevision, setProgressRevision] = useState(0);
+  const [completing, setCompleting] = useState(false);
   const requestedId = Number(params.get("course"));
   const course = courses.find((item) => item.id === requestedId) ?? courses[0];
   const courseId = course?.id;
@@ -51,6 +63,7 @@ export default function Trail() {
     !error &&
     (loadingLessons || Boolean(courseId && loadedCourseId !== courseId));
   const lesson = opened === null ? null : lessons[opened];
+  const currentLessonIndex = lessons.findIndex((item) => !item.locked && !item.completed);
 
   useEffect(() => {
     let active = true;
@@ -98,7 +111,7 @@ export default function Trail() {
     return () => {
       active = false;
     };
-  }, [courseId, retry]);
+  }, [courseId, retry, progressRevision]);
 
   const changeCourse = (id: string) => {
     setOpened(null);
@@ -107,19 +120,26 @@ export default function Trail() {
     setError("");
     setParams({ course: id });
   };
-  // const completeReading = async () => {
-  //   if (!lesson) return;
-  //   setCompleting(true);
-  //   setError("");
-  //   try {
-  //     await apiRequest(`/api/lessons/${lesson.id}/complete`, { method: "POST" });
-  //     setProgressRevision((value) => value + 1);
-  //   } catch (cause) {
-  //     setError(cause instanceof Error ? cause.message : "Não foi possível concluir a lição.");
-  //   } finally {
-  //     setCompleting(false);
-  //   }
-  // };
+  const completeReading = async () => {
+    if (!lesson) return;
+    setCompleting(true);
+    setError("");
+    try {
+      const result = await apiRequest<{ totalXp: number }>(`/api/lessons/${lesson.id}/complete`, {
+        method: "POST",
+      });
+      if (user) updateTotalXp(user.id, result.totalXp);
+      setProgressRevision((value) => value + 1);
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Não foi possível concluir a lição.",
+      );
+    } finally {
+      setCompleting(false);
+    }
+  };
   const retryLoading = () => {
     setError("");
     setLoadingCourses(true);
@@ -232,17 +252,27 @@ export default function Trail() {
                             key={item.id}
                             className={`trail-step trail-step-${index % 4}`}
                           >
-                            {index === 0 && (
+                            {item.current && (
                               <span className="trail-start-label">
-                                COMECE AQUI
+                                CONTINUAR
                               </span>
                             )}
+                            {index === 0 &&
+                              !item.current &&
+                              !item.completed && (
+                                <span className="trail-start-label">
+                                  COMECE AQUI
+                                </span>
+                              )}
                             <button
-                              className={`trail-node ${index === 0 ? "trail-node-first" : ""}`}
+                              className={`trail-node ${index === 0 ? "trail-node-first" : ""} ${item.current ? "trail-node-current" : ""}`}
+                              disabled={item.locked}
                               onClick={() => setOpened(index)}
                               aria-label={`Abrir lição ${index + 1}: ${item.title}`}
                             >
-                              {index === 0 ? (
+                              {item.locked ? (
+                                <LockRounded />
+                              ) : index === 0 ? (
                                 <StarRounded />
                               ) : index % 3 === 0 ? (
                                 <CodeRounded />
@@ -254,6 +284,16 @@ export default function Trail() {
                               LIÇÃO {String(index + 1).padStart(2, "0")}
                             </span>
                             <h3>{item.title}</h3>
+                            <span>
+                              {item.completed
+                                ? "Concluída"
+                                : item.locked
+                                  ? "Bloqueada"
+                                  : item.current
+                                    ? "Atual"
+                                    : "Disponível"}
+                            </span>
+                            <span>{item.xpEarned > 0 ? `${item.xpEarned} XP conquistados` : `${item.xpReward} XP`}</span>
                           </li>
                         ))}
                       </ol>
@@ -282,12 +322,12 @@ export default function Trail() {
                 Reserve um momento do seu dia para aprender algo novo. Sua
                 próxima descoberta está a uma lição de distância.
               </p>
-              {lessons.length > 0 && !loadingLessons && !error && (
+              {currentLessonIndex >= 0 && !waitingForLessons && !error && (
                 <button
                   className="trail-primary-button"
-                  onClick={() => setOpened(0)}
+                  onClick={() => setOpened(currentLessonIndex)}
                 >
-                  Explorar primeira lição <ArrowForward />
+                  Continuar lição <ArrowForward />
                 </button>
               )}
             </section>
@@ -302,7 +342,7 @@ export default function Trail() {
               <p>
                 Leia, experimente e revise.
                 <br />
-                Todas as lições estão disponíveis para você.
+                As lições são desbloqueadas sequencialmente.
               </p>
             </section>
             <p className="trail-footer-note">
@@ -338,16 +378,48 @@ export default function Trail() {
               </span>
             </DialogTitle>
             <DialogContent dividers key={lesson.id}>
-              <div className="trail-lesson-content">{lesson.content}</div>
-              <LessonProblems key={lesson.id} lessonId={lesson.id} />
-              {user?.roles.includes("ROLE_ADMIN") && (
-                <Button
-                  component={Link}
-                  to={`/problems/new?course=${lesson.courseId}&lesson=${lesson.id}`}
-                  sx={{ mt: 2 }}
-                >
-                  Adicionar problema nesta lição
-                </Button>
+              {lesson.locked ? (
+                <Alert severity="info">
+                  Conclua as lições anteriores para acessar esta lição.
+                </Alert>
+              ) : (
+                <>
+                  <div className="trail-lesson-content">{lesson.content}</div>
+                  <LessonProblems
+                    key={lesson.id}
+                    lessonId={lesson.id}
+                    onProgress={() => setProgressRevision((value) => value + 1)}
+                  />
+                  {lesson.completed && (
+                    <Alert severity="success" sx={{ mt: 2 }}>
+                      Lição concluída. {lesson.xpEarned} XP conquistados.
+                    </Alert>
+                  )}
+                  {lesson.problemCount === 0 && !lesson.completed && (
+                    <Button
+                      sx={{ mt: 2 }}
+                      variant="contained"
+                      disabled={completing}
+                      onClick={completeReading}
+                    >
+                      {completing ? "Salvando…" : `Concluir leitura · ${lesson.xpReward} XP`}
+                    </Button>
+                  )}
+                  {error && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
+                  {user?.roles.includes("ROLE_ADMIN") && (
+                    <Button
+                      component={Link}
+                      to={`/problems/new?course=${lesson.courseId}&lesson=${lesson.id}`}
+                      sx={{ mt: 2 }}
+                    >
+                      Adicionar problema nesta lição
+                    </Button>
+                  )}
+                </>
               )}
             </DialogContent>
             <DialogActions
@@ -374,7 +446,14 @@ export default function Trail() {
               ) : (
                 <Button
                   variant="contained"
-                  endIcon={<ArrowForward />}
+                  disabled={lessons[(opened ?? 0) + 1]?.locked}
+                  endIcon={
+                    lessons[(opened ?? 0) + 1]?.locked ? (
+                      <LockRounded />
+                    ) : (
+                      <ArrowForward />
+                    )
+                  }
                   onClick={() => setOpened((value) => (value ?? 0) + 1)}
                 >
                   Próxima lição

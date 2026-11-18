@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 
-export type User = { id: number; name: string; email: string; roles: string[] };
-type Auth = { user: User | null; loading: boolean; login: (email: string, password: string) => Promise<void>; logout: () => void };
+export type User = { id: number; name: string; email: string; roles: string[]; totalXp: number };
+type Auth = { user: User | null; loading: boolean; login: (email: string, password: string) => Promise<void>; logout: () => void; updateTotalXp: (userId: number, totalXp: number) => void };
 export const AuthContext = createContext<Auth | null>(null);
 
 export function useAuth() {

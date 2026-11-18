@@ -31,6 +31,8 @@ final class LessonController
             $data['completed'] = $state['completed'];
             $data['current'] = $state['current'] ?? false;
             $data['problemCount'] = count($state['problems']);
+            $data['xpReward'] = $state['xpReward'];
+            $data['xpEarned'] = $state['xpEarned'];
             if ($state['locked']) {
                 $data['content'] = '';
             }
@@ -45,10 +47,11 @@ final class LessonController
         if ($state['problems'] !== [] && !$state['completed']) {
             return new JsonResponse(['error' => 'Resolva todos os problemas desta lição.'], 409);
         }
+        $xpAwarded = 0;
         if ($state['problems'] === []) {
-            $progress->completeReading($lesson, $user);
+            $xpAwarded = $progress->completeReading($lesson, $user);
         }
-        return new JsonResponse(['completed' => true]);
+        return new JsonResponse(['completed' => true, 'xpAwarded' => $xpAwarded, 'totalXp' => $progress->totalXp($user)]);
     }
 
     #[Route('/api/lessons', name: 'api_lessons_create', methods: ['POST'])]
@@ -60,7 +63,10 @@ final class LessonController
             return new JsonResponse(['error' => 'Corpo da requisição inválido.'], 400);
         }
 
-        $title = trim((string) ($data['title'] ?? ''));
+        if (!is_array($data) || !is_string($data['title'] ?? null) || !is_string($data['content'] ?? null) || !$this->validReward($data)) {
+            return new JsonResponse(['error' => 'Informe título, conteúdo, dificuldade válida e XP inteiro entre 0 e 1000000.'], 422);
+        }
+        $title = trim($data['title']);
         $content = trim((string) ($data['content'] ?? ''));
         $courseId = filter_var($data['courseId'] ?? null, FILTER_VALIDATE_INT);
         if ($title === '' || $content === '' || $courseId === false) {
@@ -73,18 +79,38 @@ final class LessonController
         }
 
         $lesson = (new Lesson())->setTitle($title)->setContent($content)->setCourse($course);
+        $lesson->setDifficulty($data['difficulty'] ?? 'easy')->setXpReward($data['xpReward'] ?? null);
         $entityManager->persist($lesson);
         $entityManager->flush();
 
         return new JsonResponse($this->serializeLesson($lesson), 201);
     }
 
-    /** @return array{id: int|null, title: string|null, content: string, courseId: int|null, createdAt: string|null} */
+    #[Route('/api/lessons/{id<\d+>}/reward', methods: ['PATCH'])]
+    public function updateReward(Lesson $lesson, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $data = $request->toArray();
+        if (!$this->validReward($data) || !is_string($data['difficulty'] ?? null) || !array_key_exists('xpReward', $data)) {
+            return new JsonResponse(['error' => 'Informe dificuldade válida e XP inteiro entre 0 e 1000000, ou vazio para automático.'], 422);
+        }
+        $lesson->setDifficulty($data['difficulty'])->setXpReward($data['xpReward']);
+        $entityManager->flush();
+        return new JsonResponse($this->serializeLesson($lesson));
+    }
+
+    private function validReward(array $data): bool
+    {
+        return in_array($data['difficulty'] ?? 'easy', ['easy', 'medium', 'hard'], true)
+            && (!isset($data['xpReward']) || (is_int($data['xpReward']) && $data['xpReward'] >= 0 && $data['xpReward'] <= 1000000));
+    }
+
     private function serializeLesson(Lesson $lesson): array
     {
         return [
             'id' => $lesson->getId(),
             'title' => $lesson->getTitle(),
+            'difficulty' => $lesson->getDifficulty(),
+            'customXpReward' => $lesson->getXpReward(),
             'content' => $lesson->getContent(),
             'courseId' => $lesson->getCourse()?->getId(),
             'createdAt' => $lesson->getCreatedAt()?->format(DATE_ATOM),

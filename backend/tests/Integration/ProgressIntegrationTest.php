@@ -80,17 +80,20 @@ final class ProgressIntegrationTest extends KernelTestCase
         self::assertTrue($p1_2_state['locked'], 'P1.2 deve estar bloqueado');
 
         // 2. Resolve P1.1
-        $this->progress->accept($p1_1, $this->user);
+        self::assertSame(0, $this->progress->accept($p1_1, $this->user));
         $state = $this->progress->course($course->getId(), $this->user);
 
         self::assertFalse($state[$lesson1->getId()]['problems'][$p1_2->getId()]['locked'], 'P1.2 deve estar desbloqueado agora');
         self::assertTrue($state[$lesson2->getId()]['locked'], 'L2 ainda deve estar bloqueada porque L1 não acabou');
 
         // 3. Resolve P1.2
-        $this->progress->accept($p1_2, $this->user);
+        self::assertSame(100, $this->progress->accept($p1_2, $this->user));
+        self::assertSame(0, $this->progress->accept($p1_2, $this->user));
         $state = $this->progress->course($course->getId(), $this->user);
 
         self::assertTrue($state[$lesson1->getId()]['completed'], 'L1 deve estar concluída');
+        self::assertSame(100, $state[$lesson1->getId()]['xpEarned']);
+        self::assertSame(0, $state[$lesson2->getId()]['xpEarned']);
         self::assertFalse($state[$lesson2->getId()]['locked'], 'L2 deve estar desbloqueada agora');
         self::assertTrue($state[$lesson2->getId()]['current'], 'L2 deve ser a atual agora');
 
@@ -111,5 +114,140 @@ final class ProgressIntegrationTest extends KernelTestCase
         // L1 está aberta, L2 está bloqueada
         $this->expectException(\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException::class);
         $this->progress->requireLesson($l2, $this->user);
+    }
+
+    public function testReadingAwardsOnceAndSeparatesUsers(): void
+    {
+        $course = (new Courses())->setName('Reading XP');
+        $lesson = (new Lesson())->setTitle('Read')->setCourse($course);
+        $other = (new User())->setName('Other')->setEmail(uniqid().'@example.invalid')->setPassword('unused');
+        foreach ([$course, $lesson, $other] as $entity) $this->em->persist($entity);
+        $this->em->flush();
+
+        self::assertSame(100, $this->progress->completeReading($lesson, $this->user));
+        self::assertSame(0, $this->progress->completeReading($lesson, $this->user));
+        self::assertSame(100, $this->progress->lesson($lesson, $this->user)['xpEarned']);
+        self::assertSame(0, $this->progress->lesson($lesson, $other)['xpEarned']);
+        self::assertSame(100, $this->progress->completeReading($lesson, $other));
+    }
+
+    public function testReadingCannotSkipExercisesOrAwardXp(): void
+    {
+        $course = (new Courses())->setName('Exercise XP');
+        $lesson = (new Lesson())->setTitle('Exercise')->setCourse($course);
+        $problem = new Problem($lesson, 'Print', 'Print');
+        foreach ([$course, $lesson, $problem] as $entity) $this->em->persist($entity);
+        $this->em->flush();
+
+        try {
+            $this->progress->completeReading($lesson, $this->user);
+            self::fail('Exercise lesson accepted as reading');
+        } catch (\Symfony\Component\HttpKernel\Exception\ConflictHttpException) {
+            self::assertSame(0, $this->progress->lesson($lesson, $this->user)['xpEarned']);
+        }
+    }
+
+    public function testLockedLessonCannotAwardXp(): void
+    {
+        $course = (new Courses())->setName('Locked XP');
+        $first = (new Lesson())->setTitle('First')->setCourse($course);
+        $next = (new Lesson())->setTitle('Next')->setCourse($course);
+        foreach ([$course, $first, $next] as $entity) $this->em->persist($entity);
+        $this->em->flush();
+
+        try {
+            $this->progress->completeReading($next, $this->user);
+            self::fail('Locked lesson completed');
+        } catch (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException) {
+            self::assertSame(0, $this->progress->lesson($next, $this->user)['xpEarned']);
+        }
+    }
+
+    public function testMigrationRecognizesCompletedLessonsOnly(): void
+    {
+        $course = (new Courses())->setName('Historical XP');
+        $complete = (new Lesson())->setTitle('Complete')->setCourse($course);
+        $partial = (new Lesson())->setTitle('Partial')->setCourse($course);
+        $read = (new Lesson())->setTitle('Read')->setCourse($course);
+        $solved = new Problem($complete, 'Solved', 'Solved');
+        $partialSolved = new Problem($partial, 'Solved', 'Solved');
+        $unsolved = new Problem($partial, 'Unsolved', 'Unsolved');
+        foreach ([$course, $complete, $partial, $read, $solved, $partialSolved, $unsolved] as $entity) {
+            $this->em->persist($entity);
+        }
+        $this->em->flush();
+        $db = $this->em->getConnection();
+        foreach ([$solved, $partialSolved] as $problem) {
+            $db->executeStatement('INSERT INTO problem_progress (user_id, problem_id, completed_at) VALUES (?, ?, CURRENT_TIMESTAMP)', [$this->user->getId(), $problem->getId()]);
+        }
+        $db->executeStatement('INSERT INTO lesson_progress (user_id, lesson_id, completed_at) VALUES (?, ?, CURRENT_TIMESTAMP)', [$this->user->getId(), $read->getId()]);
+
+        require_once dirname(__DIR__, 2).'/migrations/Version20261118010000.php';
+        $db->executeStatement('ALTER TABLE lesson_progress DROP xp_earned');
+        $migration = new \DoctrineMigrations\Version20261118010000($db, new \Psr\Log\NullLogger());
+        $migration->up(new \Doctrine\DBAL\Schema\Schema());
+        foreach ($migration->getSql() as $query) {
+            $db->executeStatement($query->getStatement(), $query->getParameters(), $query->getTypes());
+        }
+        $state = $this->progress->course($course->getId(), $this->user);
+        self::assertSame(100, $state[$complete->getId()]['xpEarned']);
+        self::assertSame(0, $state[$partial->getId()]['xpEarned']);
+        self::assertSame(100, $state[$read->getId()]['xpEarned']);
+        self::assertSame(0, $this->progress->accept($solved, $this->user));
+    }
+
+    public function testCustomLessonXpOverridesProblemsAndPreservesHistory(): void
+    {
+        $course = (new Courses())->setName('Custom reward');
+        $lesson = (new Lesson())->setTitle('Custom')->setCourse($course)->setDifficulty('hard')->setXpReward(275);
+        $problem = new Problem($lesson, 'Print', 'Print');
+        foreach ([$course, $lesson, $problem] as $entity) $this->em->persist($entity);
+        $this->em->flush();
+        self::assertSame(275, $this->progress->lesson($lesson, $this->user)['xpReward']);
+        self::assertSame(275, $this->progress->accept($problem, $this->user));
+        $lesson->setXpReward(0);
+        $this->em->flush();
+        self::assertSame(0, $this->progress->lesson($lesson, $this->user)['xpReward']);
+        self::assertSame(0, $this->progress->accept($problem, $this->user));
+        self::assertSame(275, $this->progress->totalXp($this->user));
+        $lesson->setXpReward(null);
+        $this->em->flush();
+        self::assertSame(50, $this->progress->lesson($lesson, $this->user)['xpReward']);
+    }
+
+    public function testDifficultyRewardsAndTotalPreserveEarnedXp(): void
+    {
+        $course = (new Courses())->setName('Dynamic XP');
+        $lesson = (new Lesson())->setTitle('Exercises')->setCourse($course);
+        $reading = (new Lesson())->setTitle('Reading')->setCourse($course);
+        foreach ([$course, $lesson, $reading] as $entity) $this->em->persist($entity);
+        $problems = [];
+        foreach (\App\Entity\ProblemDifficulty::cases() as $difficulty) {
+            $problem = new Problem($lesson, $difficulty->value, 'Print');
+            $problem->setDifficulty($difficulty);
+            $this->em->persist($problem);
+            $problems[] = $problem;
+        }
+        $this->em->flush();
+
+        self::assertSame(350, $this->progress->lesson($lesson, $this->user)['xpReward']);
+        self::assertSame(0, $this->progress->totalXp($this->user));
+        self::assertSame(0, $this->progress->accept($problems[0], $this->user));
+        self::assertSame(0, $this->progress->accept($problems[1], $this->user));
+        self::assertSame(0, $this->progress->totalXp($this->user));
+        self::assertSame(350, $this->progress->accept($problems[2], $this->user));
+        self::assertSame(0, $this->progress->accept($problems[2], $this->user));
+        self::assertSame(350, $this->progress->totalXp($this->user));
+
+        $problems[0]->setDifficulty(\App\Entity\ProblemDifficulty::Hard);
+        $this->em->flush();
+        self::assertSame(500, $this->progress->lesson($lesson, $this->user)['xpReward']);
+        self::assertSame(350, $this->progress->lesson($lesson, $this->user)['xpEarned']);
+        self::assertSame(0, $this->progress->accept($problems[0], $this->user));
+        self::assertSame(350, $this->progress->totalXp($this->user));
+        self::assertSame(100, $this->progress->completeReading($reading, $this->user));
+        self::assertSame(450, $this->progress->totalXp($this->user));
+        self::assertSame(0, $this->progress->completeReading($reading, $this->user));
+        self::assertSame(450, $this->progress->totalXp($this->user));
     }
 }

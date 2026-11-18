@@ -14,6 +14,7 @@ import {
   ScienceRounded,
 } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
+import { useAuth } from "../../auth/useAuth";
 export type TestCase = { input: string; expected: string };
 const labels = {
   accepted: "Resposta correta",
@@ -27,14 +28,19 @@ type Result = TestCase & {
   status: keyof typeof labels;
   actual: string;
   errorOutput: string;
+  xpAwarded: number;
+  totalXp: number;
 };
 export function ProblemExercise({
   id,
   test,
+  onSuccess,
 }: {
   id: number;
   test: TestCase | null;
+  onSuccess?: () => void;
 }) {
+  const { user, updateTotalXp } = useAuth();
   const [code, setCode] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,12 +50,15 @@ export function ProblemExercise({
     setResult(null);
     setError("");
     try {
-      setResult(
-        await apiRequest<Result>(`/api/problems/${id}/check`, {
-          method: "POST",
-          body: JSON.stringify({ code }),
-        }),
-      );
+      const data = await apiRequest<Result>(`/api/problems/${id}/check`, {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      });
+      setResult(data);
+      if (user) updateTotalXp(user.id, data.totalXp);
+      if (data.status === "accepted" && onSuccess) {
+        onSuccess();
+      }
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -114,6 +123,11 @@ export function ProblemExercise({
             }
           >
             <strong>{labels[result.status]}</strong>
+            {result.xpAwarded > 0 && (
+              <Typography sx={{ mt: 1, fontWeight: 800 }}>
+                Lição concluída! +{result.xpAwarded} XP
+              </Typography>
+            )}
             <Box
               component="dl"
               sx={{

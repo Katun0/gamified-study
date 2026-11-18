@@ -143,7 +143,16 @@ class DockerSandboxRunner:
 
         def write():
             try:
-                payload = json.dumps({"code": request.code, "stdin": request.stdin}).encode("utf-8")
+                payload_data = {
+                    "code": request.code,
+                    "mode": request.mode
+                }
+                if request.mode == "function":
+                    payload_data["func_args"] = request.func_args
+                else:
+                    payload_data["stdin"] = request.stdin
+                
+                payload = json.dumps(payload_data).encode("utf-8")
                 view = memoryview(payload)
                 while view:
                     written = process.stdin.write(view)
@@ -197,6 +206,38 @@ class DockerSandboxRunner:
         status = forced_status or ("output_limit" if exceeded.is_set() else
                                   "memory_limit" if state.get("OOMKilled") else
                                   "completed" if exit_code == 0 else "runtime_error")
-        return ExecutionResult(status, output[0].decode("utf-8", errors="replace"),
-                               output[1].decode("utf-8", errors="replace"),
-                               None if forced_status else exit_code)
+        
+        stdout_str = output[0].decode("utf-8", errors="replace")
+        stderr_str = output[1].decode("utf-8", errors="replace")
+        result_value = None
+        
+        if request.mode == "function" and status == "completed":
+            marker = "\n---RESULT_START---\n"
+            if marker in stdout_str:
+                parts = stdout_str.split(marker)
+                stdout_str = parts[0]
+                try:
+                    result_data = json.loads(parts[1])
+                    result_value = result_data.get("result")
+                except (json.JSONDecodeError, KeyError, IndexError):
+                    status = "runtime_error"
+                    stderr_str += "\nErro ao decodificar o resultado da função."
+            else:
+                # Se não encontrar o marcador mas completou, talvez não tenha prints e o marcador esteja no início
+                marker_start = "---RESULT_START---\n"
+                if stdout_str.startswith(marker_start):
+                    parts = stdout_str.split(marker_start)
+                    stdout_str = ""
+                    try:
+                        result_data = json.loads(parts[1])
+                        result_value = result_data.get("result")
+                    except (json.JSONDecodeError, KeyError, IndexError):
+                        status = "runtime_error"
+                        stderr_str += "\nErro ao decodificar o resultado da função."
+                else:
+                    status = "runtime_error"
+                    stderr_str += "\nErro: O marcador de resultado da função não foi encontrado."
+
+        return ExecutionResult(status, stdout_str, stderr_str,
+                               None if forced_status else exit_code,
+                               result_value)

@@ -80,13 +80,30 @@ final class ProblemController
 
     private function serialize(Problem $problem): array
     {
+        $testCase = null;
+        if ($problem->getEvaluationMode() === 'function') {
+            if ($problem->getFunctionArguments() !== null) {
+                $testCase = [
+                    'evaluationMode' => 'function',
+                    'functionArguments' => $problem->getFunctionArguments(),
+                    'expectedReturn' => $problem->getExpectedReturn(),
+                    'expectedReturnType' => $problem->getExpectedReturnType(),
+                    'functionTemplate' => $problem->getFunctionTemplate(),
+                ];
+            }
+        } elseif ($problem->getExpectedOutput() !== null) {
+            $testCase = [
+                'evaluationMode' => 'stdin_stdout',
+                'input' => $problem->getTestInput(),
+                'expected' => $problem->getExpectedOutput(),
+            ];
+        }
+
         return [
             'id' => $problem->getId(), 'lessonId' => $problem->getLesson()->getId(),
             'title' => $problem->getTitle(), 'statement' => $problem->getStatement(),
             'difficulty' => $problem->getDifficulty()->value, 'xpReward' => $problem->getDifficulty()->xp(),
-            'testCase' => $problem->getExpectedOutput() === null ? null : [
-                'input' => $problem->getTestInput(), 'expected' => $problem->getExpectedOutput(),
-            ],
+            'testCase' => $testCase,
             'createdAt' => $problem->getCreatedAt()->format(DATE_ATOM),
         ];
     }

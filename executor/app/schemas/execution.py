@@ -1,11 +1,13 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Any
 
 
 @dataclass(frozen=True)
 class ExecutionRequest:
     code: str
     stdin: str = ""
+    mode: Literal["stdin_stdout", "function"] = "stdin_stdout"
+    func_args: list[Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -15,3 +17,4 @@ class ExecutionResult:
     stdout: str
     stderr: str
     exit_code: int | None
+    result: Any | None = None

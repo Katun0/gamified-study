@@ -8,6 +8,8 @@ Configure `EXECUTOR_API_TOKEN` em `backend/.env.local`. O executor local lê ess
 
 Como administrador, abra Criar problema, selecione a lição e salve a entrada e a saída esperada no problema. Como aluno, abra a mesma lição, digite o programa e clique em Verificar resposta.
 
+No modo Função, o caso de teste pode exigir um retorno exato ou aceitar qualquer retorno do tipo string. O executor preserva o tipo do valor retornado; a comparação com o caso de teste, incluindo a validação de tipo, é feita pelo Symfony.
+
 ## Preparação
 
 Requer Python 3.11+, Docker Linux com seccomp e limites de CPU, memória, swap e processos. No Windows, use Docker Desktop com backend Linux/WSL2. Não há fallback para executar código no host.

@@ -6,8 +6,8 @@ namespace App\Execution;
 interface CodeExecutorInterface
 {
     /**
-     * @return array{status: string, stdout: string, stderr: string, exitCode: int|null}
+     * @return array{status: string, stdout: string, stderr: string, exitCode: int|null, result: mixed}
      * @throws \RuntimeException Em falhas de infraestrutura, sem reprovar o aluno.
      */
-    public function execute(string $code, string $stdin = ''): array;
+    public function execute(string $code, string $stdin = '', string $mode = 'stdin_stdout', ?array $funcArgs = null): array;
 }

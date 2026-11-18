@@ -36,14 +36,24 @@ class Handler(BaseHTTPRequestHandler):
             payload = json.loads(self.rfile.read(size))
             if not isinstance(payload, dict) or not isinstance(payload.get("code"), str):
                 return self.reply(422, {})
-            result = execute(ExecutionRequest(payload["code"], payload.get("stdin", "")))
+            result = execute(ExecutionRequest(
+                code=payload["code"],
+                stdin=payload.get("stdin", ""),
+                mode=payload.get("mode", "stdin_stdout"),
+                func_args=payload.get("func_args")
+            ))
         except (ValueError, TypeError):
             return self.reply(422, {})
         except ExecutionUnavailable as exc:
             self.log_error("Executor indisponível: %s", exc)
             return self.reply(503, {"error": "execution_unavailable"})
-        self.reply(200, {"status": result.status, "stdout": result.stdout,
-                         "stderr": result.stderr, "exitCode": result.exit_code})
+        self.reply(200, {
+            "status": result.status,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "exitCode": result.exit_code,
+            "result": result.result
+        })
 
 
 def configured_token():

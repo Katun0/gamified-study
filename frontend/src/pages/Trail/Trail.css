@@ -1,14 +1,1379 @@
-.trail-app{--trail-border:#2c4049;min-height:100vh;background:#101e25;color:#edf5f8;display:flex;font-family:Inter,"Segoe UI",sans-serif}
-.trail-app a{color:inherit;text-decoration:none}.trail-app button,.trail-app select{font:inherit}.trail-app button{cursor:pointer}.trail-app button:focus-visible,.trail-app a:focus-visible,.trail-app select:focus-visible,.trail-dialog-heading button:focus-visible{outline:3px solid #82d6ff;outline-offset:5px}
-.trail-sidebar{width:246px;flex-shrink:0;border-right:2px solid var(--trail-border);padding:35px 22px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
-.trail-brand{display:flex;align-items:center;font-weight:850;font-size:24px;letter-spacing:-1px;white-space:nowrap}.trail-brand>span:first-child{display:grid;place-items:center;width:36px;height:36px;background:#42b5f5;color:#10232e;border-radius:12px;margin-right:8px}.trail-brand-accent{color:#42b5f5}.trail-nav-label{font-size:10px;letter-spacing:2px;color:#8096a1;font-weight:800;margin:54px 14px 17px}.trail-sidebar nav{display:grid;gap:12px}.trail-sidebar nav a{display:flex;align-items:center;gap:15px;padding:14px;border:2px solid transparent;border-radius:14px;color:#a2b5bf;font-size:14px;font-weight:750}.trail-sidebar nav a:hover{background:#1c303a}.trail-sidebar nav a.trail-nav-active{border-color:#29779e;background:#15394c;color:#66caff}.trail-sidebar-bottom{margin-top:auto;display:flex;gap:10px;align-items:center;border-top:1px solid var(--trail-border);padding-top:22px;min-width:0}.trail-avatar{width:36px;height:36px;flex-shrink:0;display:grid;place-items:center;border-radius:13px;background:#493571;color:#d7c2ff;font-weight:800}.trail-sidebar-bottom>div:nth-child(2){min-width:0}.trail-sidebar-bottom strong{display:block;overflow-wrap:anywhere;font-size:13px}.trail-sidebar-bottom small{font-size:10px;color:#8ea3ae}.trail-sidebar-bottom button{margin-left:auto;background:none;border:0;color:#91a9b5;padding:4px}
-.trail-workspace{flex:1;min-width:0}.trail-topbar{height:85px;display:flex;align-items:center;justify-content:space-between;padding:0 44px;border-bottom:2px solid var(--trail-border);font-size:14px;font-weight:750}.trail-topbar span{display:flex;align-items:center;gap:10px}.trail-topbar span:first-child svg{color:#42b5f5}.trail-topbar .trail-topbar-note{color:#9ab0ba;font-size:12px;font-weight:500}.trail-topbar-note svg{color:#f1c45c;width:19px}.trail-columns{max-width:1130px;margin:auto;padding:40px 44px;display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:48px}.trail-main{min-width:0}.trail-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;gap:16px}.trail-eyebrow{display:block;font-size:10px;font-weight:800;letter-spacing:1.7px;color:#8ca7b4}.trail-heading h1{font-size:32px;line-height:1.2;letter-spacing:-1px;margin:12px 0;color:#f2f8fa;font-weight:850}.trail-heading p{color:#91a9b5;font-size:13px;line-height:1.7;margin:0}.trail-heading-icon{color:#66caff;background:#183a4a;border:1px solid #28536a;border-radius:22px;transform:rotate(10deg);padding:14px}.trail-heading-icon svg{font-size:40px}
-.trail-course-select{display:block;color:#8ea7b3;font-size:10px;letter-spacing:1.5px;font-weight:750;margin:24px 0 18px}.trail-course-select select{display:block;width:100%;padding:13px 16px;margin-top:9px;border:2px solid #304650;border-radius:12px;background:#182a33;color:#e7f2f8;font-size:14px;font-weight:650;letter-spacing:0;color-scheme:dark}.trail-unit{display:flex;align-items:center;justify-content:space-between;background:#278ec4;border:1px solid #49b5e9;border-bottom:5px solid #17688e;border-radius:17px;padding:22px 24px;gap:20px}.trail-unit span{font-size:10px;font-weight:850;letter-spacing:1.5px;color:#d1efff}.trail-unit h2{font-size:22px;line-height:1.25;margin:8px 0;font-weight:800;overflow-wrap:anywhere}.trail-unit p{font-size:12px;line-height:1.65;margin:0;color:#e0f4ff;white-space:pre-line;overflow-wrap:anywhere}.trail-unit>svg{font-size:40px;flex-shrink:0;color:#bfeaff}.trail-path-caption{display:flex;align-items:center;gap:16px;color:#7b96a4;font-size:10px;font-weight:750;letter-spacing:2px;margin:32px 0}.trail-path-caption span{height:1px;background:#2a404b;flex:1}
-.trail-path{list-style:none;margin:0;padding:24px 0 0;display:flex;flex-direction:column;align-items:center;position:relative}.trail-path:before{content:"";position:absolute;top:50px;bottom:65px;left:50%;border-left:5px dotted #2c4857}.trail-step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:210px;min-height:180px;text-align:center}.trail-step-1{transform:translateX(-62px)}.trail-step-3{transform:translateX(62px)}.trail-node{width:78px;height:72px;border-radius:50%;background:#254a60;border:3px solid #386880;box-shadow:0 8px 0 #17384a,0 11px 0 #0b1720;color:#9edfff;display:grid;place-items:center;transition:transform .15s,background .15s}.trail-node svg{font-size:33px}.trail-node:hover{background:#326984;transform:translateY(-3px)}.trail-node:active{transform:translateY(5px);box-shadow:0 3px 0 #17384a}.trail-node-first{background:#49baf4;border-color:#73d1ff;box-shadow:0 8px 0 #237caa,0 0 0 10px #1b3543;color:white}.trail-node-first:hover{background:#66caff}.trail-start-label{position:absolute;top:-38px;border:2px solid #355361;border-radius:10px;background:#142831;padding:5px 11px;color:#66caff;font-size:10px;font-weight:850;letter-spacing:1px}.trail-step-number{font-size:9px;font-weight:750;letter-spacing:1.5px;color:#7f9aa8;margin-top:21px;background:#101e25;padding:2px 6px}.trail-step h3{font-size:13px;line-height:1.4;margin:5px 0 0;background:#101e25;padding:0 8px;max-width:210px;overflow-wrap:anywhere}.trail-finish{text-align:center;border-top:1px solid var(--trail-border);padding:27px 8px;color:#8da8b5}.trail-finish>svg{font-size:32px;color:#a592d6}.trail-finish h3{font-size:14px;color:#c3d3db;margin:10px 0}.trail-finish p{font-size:12px;line-height:1.7}
-.trail-right{padding-top:9px}.trail-tip-card,.trail-info-card{border:2px solid var(--trail-border);border-radius:18px;padding:25px 22px}.trail-tip-card{background:radial-gradient(ellipse at 100% 0,#263d50 0,transparent 65%)}.trail-tip-symbol{display:grid;place-items:center;width:58px;height:58px;border-radius:18px;background:#3b3651;color:#d4b9ff;border-bottom:4px solid #29243c;margin-bottom:24px;transform:rotate(-7deg)}.trail-tip-symbol svg{font-size:33px}.trail-tip-card h2{font-size:25px;line-height:1.3;letter-spacing:-.7px;margin:12px 0;font-weight:800}.trail-tip-card p,.trail-info-card p{font-size:12px;color:#91a9b5;line-height:1.9}.trail-primary-button{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:25px;padding:12px 8px;width:100%;border:0;border-bottom:4px solid #237eaa;border-radius:11px;color:#0c2c3e;background:#53bdf4;font-weight:800!important;font-size:11px!important}.trail-primary-button:hover{background:#80d1fb}.trail-primary-button svg{font-size:17px}.trail-info-card{margin-top:22px}.trail-info-card h3{display:flex;align-items:center;gap:10px;font-size:14px;margin:0 0 20px}.trail-info-card h3 svg{color:#9d85e3;font-size:21px}.trail-info-card>div{display:flex;align-items:center;gap:13px}.trail-info-card strong{font-size:31px;color:#66caff}.trail-info-card span{font-size:12px;color:#a9bec9}.trail-footer-note{text-align:center;color:#607e8d;font-size:10px;line-height:1.9;margin:24px 0}.trail-empty{padding:48px 20px;text-align:center;color:#92adbb}.trail-empty>svg{font-size:42px;color:#62c4fa}.trail-empty h2{font-size:20px;color:#deecf3}.trail-empty p{font-size:14px;line-height:1.7;margin-top:18px}
-.trail-lesson-dialog{border:1px solid #35505e;border-radius:20px!important}.trail-dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:800;margin-top:12px;overflow-wrap:anywhere}.trail-dialog-heading button{background:none;border:0;color:#9db6c3;cursor:pointer;padding:7px;display:grid;place-items:center}.trail-lesson-content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.95;font-size:16px;padding:18px 4px;color:#d9e7ee}
-@media(min-width:1500px){.trail-columns{padding-top:52px}.trail-heading h1{font-size:36px}}
-@media(max-width:1150px){.trail-sidebar{width:205px;padding:30px 15px}.trail-brand{font-size:21px}.trail-columns{padding:30px 24px;gap:25px;grid-template-columns:minmax(0,1fr) 235px}.trail-heading-icon{display:none}.trail-topbar{padding:0 24px}}
-@media(max-width:900px){.trail-right{display:none}.trail-columns{grid-template-columns:minmax(0,1fr);max-width:650px}.trail-topbar .trail-topbar-note{display:none}}
-@media(max-width:600px){.trail-app{display:block}.trail-sidebar{position:relative;height:auto;width:100%;padding:17px 20px;border-right:0;border-bottom:2px solid var(--trail-border);flex-direction:row;align-items:center;justify-content:space-between;gap:10px}.trail-nav-label,.trail-sidebar nav,.trail-sidebar-bottom>div{display:none}.trail-sidebar-bottom{margin:0;padding:0;border:0}.trail-brand{font-size:22px}.trail-topbar{height:54px;padding:0 22px;font-size:12px}.trail-columns{padding:27px 20px}.trail-heading h1{font-size:29px}.trail-unit{padding:20px}.trail-unit h2{font-size:20px}.trail-unit>svg{font-size:30px}.trail-step-1{transform:translateX(-45px)}.trail-step-3{transform:translateX(45px)}.trail-step{width:190px}.trail-heading p{font-size:12px}.trail-lesson-content{font-size:14px}}
-@media(prefers-reduced-motion:reduce){.trail-node{transition:none}}
+.trail-app {
+
+  --trail-border: #2c4049;
+
+  min-height: 100vh;
+
+  background: #101e25;
+
+  color: #edf5f8;
+
+  display: flex;
+
+  font-family: Inter, "Segoe UI", sans-serif;
+
+}
+
+.trail-app a {
+
+  color: inherit;
+
+  text-decoration: none;
+
+}
+
+.trail-app button,
+
+.trail-app select {
+
+  font: inherit;
+
+}
+
+.trail-app button {
+
+  cursor: pointer;
+
+}
+
+.trail-app button:focus-visible,
+
+.trail-app a:focus-visible,
+
+.trail-app select:focus-visible,
+
+.trail-dialog-heading button:focus-visible {
+
+  outline: 3px solid #82d6ff;
+
+  outline-offset: 5px;
+
+}
+
+.trail-sidebar {
+
+  width: 246px;
+
+  flex-shrink: 0;
+
+  border-right: 2px solid var(--trail-border);
+
+  padding: 35px 22px;
+
+  position: sticky;
+
+  top: 0;
+
+  height: 100vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+.trail-brand {
+
+  display: flex;
+
+  align-items: center;
+
+  font-weight: 850;
+
+  font-size: 24px;
+
+  letter-spacing: -1px;
+
+  white-space: nowrap;
+
+}
+
+.trail-brand > span:first-child {
+
+  display: grid;
+
+  place-items: center;
+
+  width: 36px;
+
+  height: 36px;
+
+  background: #42b5f5;
+
+  color: #10232e;
+
+  border-radius: 12px;
+
+  margin-right: 8px;
+
+}
+
+.trail-brand-accent {
+
+  color: #42b5f5;
+
+}
+
+.trail-nav-label {
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+
+  color: #8096a1;
+
+  font-weight: 800;
+
+  margin: 54px 14px 17px;
+
+}
+
+.trail-sidebar nav {
+
+  display: grid;
+
+  gap: 12px;
+
+}
+
+.trail-sidebar nav a {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 14px;
+
+  border: 2px solid transparent;
+
+  border-radius: 14px;
+
+  color: #a2b5bf;
+
+  font-size: 14px;
+
+  font-weight: 750;
+
+}
+
+.trail-sidebar nav a:hover {
+
+  background: #1c303a;
+
+}
+
+.trail-sidebar nav a.trail-nav-active {
+
+  border-color: #29779e;
+
+  background: #15394c;
+
+  color: #66caff;
+
+}
+
+.trail-sidebar-bottom {
+
+  margin-top: auto;
+
+  display: flex;
+
+  gap: 10px;
+
+  align-items: center;
+
+  border-top: 1px solid var(--trail-border);
+
+  padding-top: 22px;
+
+  min-width: 0;
+
+}
+
+.trail-avatar {
+
+  width: 36px;
+
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 13px;
+
+  background: #493571;
+
+  color: #d7c2ff;
+
+  font-weight: 800;
+
+}
+
+.trail-sidebar-bottom > div:nth-child(2) {
+
+  min-width: 0;
+
+}
+
+.trail-sidebar-bottom strong {
+
+  display: block;
+
+  overflow-wrap: anywhere;
+
+  font-size: 13px;
+
+}
+
+.trail-sidebar-bottom small {
+
+  font-size: 10px;
+
+  color: #8ea3ae;
+
+}
+
+.trail-sidebar-bottom button {
+
+  margin-left: auto;
+
+  background: none;
+
+  border: 0;
+
+  color: #91a9b5;
+
+  padding: 4px;
+
+}
+
+.trail-workspace {
+
+  flex: 1;
+
+  min-width: 0;
+
+}
+
+.trail-topbar {
+
+  height: 85px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 44px;
+
+  border-bottom: 2px solid var(--trail-border);
+
+  font-size: 14px;
+
+  font-weight: 750;
+
+}
+
+.trail-topbar span {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+.trail-topbar span:first-child svg {
+
+  color: #42b5f5;
+
+}
+
+.trail-topbar .trail-topbar-note {
+
+  color: #9ab0ba;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+}
+
+.trail-topbar-note svg {
+
+  color: #f1c45c;
+
+  width: 19px;
+
+}
+
+.trail-columns {
+
+  max-width: 1130px;
+
+  margin: auto;
+
+  padding: 40px 44px;
+
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) 270px;
+
+  gap: 48px;
+
+}
+
+.trail-main {
+
+  min-width: 0;
+
+}
+
+.trail-heading {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 30px;
+
+  gap: 16px;
+
+}
+
+.trail-eyebrow {
+
+  display: block;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.7px;
+
+  color: #8ca7b4;
+
+}
+
+.trail-heading h1 {
+
+  font-size: 32px;
+
+  line-height: 1.2;
+
+  letter-spacing: -1px;
+
+  margin: 12px 0;
+
+  color: #f2f8fa;
+
+  font-weight: 850;
+
+}
+
+.trail-heading p {
+
+  color: #91a9b5;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+
+  margin: 0;
+
+}
+
+.trail-heading-icon {
+
+  color: #66caff;
+
+  background: #183a4a;
+
+  border: 1px solid #28536a;
+
+  border-radius: 22px;
+
+  transform: rotate(10deg);
+
+  padding: 14px;
+
+}
+
+.trail-heading-icon svg {
+
+  font-size: 40px;
+
+}
+
+.trail-course-select {
+
+  display: block;
+
+  color: #8ea7b3;
+
+  font-size: 10px;
+
+  letter-spacing: 1.5px;
+
+  font-weight: 750;
+
+  margin: 24px 0 18px;
+
+}
+
+.trail-course-select select {
+
+  display: block;
+
+  width: 100%;
+
+  padding: 13px 16px;
+
+  margin-top: 9px;
+
+  border: 2px solid #304650;
+
+  border-radius: 12px;
+
+  background: #182a33;
+
+  color: #e7f2f8;
+
+  font-size: 14px;
+
+  font-weight: 650;
+
+  letter-spacing: 0;
+
+  color-scheme: dark;
+
+}
+
+.trail-unit {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  background: #278ec4;
+
+  border: 1px solid #49b5e9;
+
+  border-bottom: 5px solid #17688e;
+
+  border-radius: 17px;
+
+  padding: 22px 24px;
+
+  gap: 20px;
+
+}
+
+.trail-unit span {
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  letter-spacing: 1.5px;
+
+  color: #d1efff;
+
+}
+
+.trail-unit h2 {
+
+  font-size: 22px;
+
+  line-height: 1.25;
+
+  margin: 8px 0;
+
+  font-weight: 800;
+
+  overflow-wrap: anywhere;
+
+}
+
+.trail-unit p {
+
+  font-size: 12px;
+
+  line-height: 1.65;
+
+  margin: 0;
+
+  color: #e0f4ff;
+
+  white-space: pre-line;
+
+  overflow-wrap: anywhere;
+
+}
+
+.trail-unit > svg {
+
+  font-size: 40px;
+
+  flex-shrink: 0;
+
+  color: #bfeaff;
+
+}
+
+.trail-path-caption {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+
+  color: #7b96a4;
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+  letter-spacing: 2px;
+
+  margin: 32px 0;
+
+}
+
+.trail-path-caption span {
+
+  height: 1px;
+
+  background: #2a404b;
+
+  flex: 1;
+
+}
+
+.trail-path {
+
+  list-style: none;
+
+  margin: 0;
+
+  padding: 24px 0 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  position: relative;
+
+}
+
+.trail-path:before {
+
+  content: "";
+
+  position: absolute;
+
+  top: 50px;
+
+  bottom: 65px;
+
+  left: 50%;
+
+  border-left: 5px dotted #2c4857;
+
+}
+
+.trail-step {
+
+  position: relative;
+
+  z-index: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  width: 210px;
+
+  min-height: 180px;
+
+  text-align: center;
+
+}
+
+.trail-step-1 {
+
+  transform: translateX(-62px);
+
+}
+
+.trail-step-3 {
+
+  transform: translateX(62px);
+
+}
+
+.trail-node {
+
+  width: 78px;
+
+  height: 72px;
+
+  border-radius: 50%;
+
+  background: #254a60;
+
+  border: 3px solid #386880;
+
+  box-shadow:
+
+    0 8px 0 #17384a,
+
+    0 11px 0 #0b1720;
+
+  color: #9edfff;
+
+  display: grid;
+
+  place-items: center;
+
+  transition:
+
+    transform 0.15s,
+
+    background 0.15s;
+
+}
+
+.trail-node svg {
+
+  font-size: 33px;
+
+}
+
+.trail-node:hover {
+
+  background: #326984;
+
+  transform: translateY(-3px);
+
+}
+
+.trail-node:active {
+
+  transform: translateY(5px);
+
+  box-shadow: 0 3px 0 #17384a;
+
+}
+
+.trail-node-first {
+
+  background: #49baf4;
+
+  border-color: #73d1ff;
+
+  box-shadow:
+
+    0 8px 0 #237caa,
+
+    0 0 0 10px #1b3543;
+
+  color: white;
+
+}
+
+.trail-node-first:hover {
+
+  background: #66caff;
+
+}
+
+.trail-start-label {
+
+  position: absolute;
+
+  top: -38px;
+
+  border: 2px solid #355361;
+
+  border-radius: 10px;
+
+  background: #142831;
+
+  padding: 5px 11px;
+
+  color: #66caff;
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  letter-spacing: 1px;
+
+}
+
+.trail-step-number {
+
+  font-size: 9px;
+
+  font-weight: 750;
+
+  letter-spacing: 1.5px;
+
+  color: #7f9aa8;
+
+  margin-top: 21px;
+
+  background: #101e25;
+
+  padding: 2px 6px;
+
+}
+
+.trail-step h3 {
+
+  font-size: 13px;
+
+  line-height: 1.4;
+
+  margin: 5px 0 0;
+
+  background: #101e25;
+
+  padding: 0 8px;
+
+  max-width: 210px;
+
+  overflow-wrap: anywhere;
+
+}
+
+.trail-finish {
+
+  text-align: center;
+
+  border-top: 1px solid var(--trail-border);
+
+  padding: 27px 8px;
+
+  color: #8da8b5;
+
+}
+
+.trail-finish > svg {
+
+  font-size: 32px;
+
+  color: #a592d6;
+
+}
+
+.trail-finish h3 {
+
+  font-size: 14px;
+
+  color: #c3d3db;
+
+  margin: 10px 0;
+
+}
+
+.trail-finish p {
+
+  font-size: 12px;
+
+  line-height: 1.7;
+
+}
+
+.trail-right {
+
+  padding-top: 9px;
+
+}
+
+.trail-tip-card,
+
+.trail-info-card {
+
+  border: 2px solid var(--trail-border);
+
+  border-radius: 18px;
+
+  padding: 25px 22px;
+
+}
+
+.trail-tip-card {
+
+  background: radial-gradient(ellipse at 100% 0, #263d50 0, transparent 65%);
+
+}
+
+.trail-tip-symbol {
+
+  display: grid;
+
+  place-items: center;
+
+  width: 58px;
+
+  height: 58px;
+
+  border-radius: 18px;
+
+  background: #3b3651;
+
+  color: #d4b9ff;
+
+  border-bottom: 4px solid #29243c;
+
+  margin-bottom: 24px;
+
+  transform: rotate(-7deg);
+
+}
+
+.trail-tip-symbol svg {
+
+  font-size: 33px;
+
+}
+
+.trail-tip-card h2 {
+
+  font-size: 25px;
+
+  line-height: 1.3;
+
+  letter-spacing: -0.7px;
+
+  margin: 12px 0;
+
+  font-weight: 800;
+
+}
+
+.trail-tip-card p,
+
+.trail-info-card p {
+
+  font-size: 12px;
+
+  color: #91a9b5;
+
+  line-height: 1.9;
+
+}
+
+.trail-primary-button {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-top: 25px;
+
+  padding: 12px 8px;
+
+  width: 100%;
+
+  border: 0;
+
+  border-bottom: 4px solid #237eaa;
+
+  border-radius: 11px;
+
+  color: #0c2c3e;
+
+  background: #53bdf4;
+
+  font-weight: 800 !important;
+
+  font-size: 11px !important;
+
+}
+
+.trail-primary-button:hover {
+
+  background: #80d1fb;
+
+}
+
+.trail-primary-button svg {
+
+  font-size: 17px;
+
+}
+
+.trail-info-card {
+
+  margin-top: 22px;
+
+}
+
+.trail-info-card h3 {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  font-size: 14px;
+
+  margin: 0 0 20px;
+
+}
+
+.trail-info-card h3 svg {
+
+  color: #9d85e3;
+
+  font-size: 21px;
+
+}
+
+.trail-info-card > div {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+}
+
+.trail-info-card strong {
+
+  font-size: 31px;
+
+  color: #66caff;
+
+}
+
+.trail-info-card span {
+
+  font-size: 12px;
+
+  color: #a9bec9;
+
+}
+
+.trail-footer-note {
+
+  text-align: center;
+
+  color: #607e8d;
+
+  font-size: 10px;
+
+  line-height: 1.9;
+
+  margin: 24px 0;
+
+}
+
+.trail-empty {
+
+  padding: 48px 20px;
+
+  text-align: center;
+
+  color: #92adbb;
+
+}
+
+.trail-empty > svg {
+
+  font-size: 42px;
+
+  color: #62c4fa;
+
+}
+
+.trail-empty h2 {
+
+  font-size: 20px;
+
+  color: #deecf3;
+
+}
+
+.trail-empty p {
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  margin-top: 18px;
+
+}
+
+.trail-lesson-dialog {
+
+  border: 1px solid #35505e;
+
+  border-radius: 20px !important;
+
+}
+
+.trail-dialog-heading {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  font-weight: 800;
+
+  margin-top: 12px;
+
+  overflow-wrap: anywhere;
+
+}
+
+.trail-dialog-heading button {
+
+  background: none;
+
+  border: 0;
+
+  color: #9db6c3;
+
+  cursor: pointer;
+
+  padding: 7px;
+
+  display: grid;
+
+  place-items: center;
+
+}
+
+.trail-lesson-content {
+
+  white-space: pre-wrap;
+
+  overflow-wrap: anywhere;
+
+  line-height: 1.95;
+
+  font-size: 16px;
+
+  padding: 18px 4px;
+
+  color: #d9e7ee;
+
+}
+
+@media (min-width: 1500px) {
+
+  .trail-columns {
+
+    padding-top: 52px;
+
+  }
+
+  .trail-heading h1 {
+
+    font-size: 36px;
+
+  }
+
+}
+
+@media (max-width: 1150px) {
+
+  .trail-sidebar {
+
+    width: 205px;
+
+    padding: 30px 15px;
+
+  }
+
+  .trail-brand {
+
+    font-size: 21px;
+
+  }
+
+  .trail-columns {
+
+    padding: 30px 24px;
+
+    gap: 25px;
+
+    grid-template-columns: minmax(0, 1fr) 235px;
+
+  }
+
+  .trail-heading-icon {
+
+    display: none;
+
+  }
+
+  .trail-topbar {
+
+    padding: 0 24px;
+
+  }
+
+}
+
+@media (max-width: 900px) {
+
+  .trail-right {
+
+    display: none;
+
+  }
+
+  .trail-columns {
+
+    grid-template-columns: minmax(0, 1fr);
+
+    max-width: 650px;
+
+  }
+
+  .trail-topbar .trail-topbar-note {
+
+    display: none;
+
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .trail-app {
+
+    display: block;
+
+  }
+
+  .trail-sidebar {
+
+    position: relative;
+
+    height: auto;
+
+    width: 100%;
+
+    padding: 17px 20px;
+
+    border-right: 0;
+
+    border-bottom: 2px solid var(--trail-border);
+
+    flex-direction: row;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+  }
+
+  .trail-nav-label,
+
+  .trail-sidebar nav,
+
+  .trail-sidebar-bottom > div {
+
+    display: none;
+
+  }
+
+  .trail-sidebar-bottom {
+
+    margin: 0;
+
+    padding: 0;
+
+    border: 0;
+
+  }
+
+  .trail-brand {
+
+    font-size: 22px;
+
+  }
+
+  .trail-topbar {
+
+    height: 54px;
+
+    padding: 0 22px;
+
+    font-size: 12px;
+
+  }
+
+  .trail-columns {
+
+    padding: 27px 20px;
+
+  }
+
+  .trail-heading h1 {
+
+    font-size: 29px;
+
+  }
+
+  .trail-unit {
+
+    padding: 20px;
+
+  }
+
+  .trail-unit h2 {
+
+    font-size: 20px;
+
+  }
+
+  .trail-unit > svg {
+
+    font-size: 30px;
+
+  }
+
+  .trail-step-1 {
+
+    transform: translateX(-45px);
+
+  }
+
+  .trail-step-3 {
+
+    transform: translateX(45px);
+
+  }
+
+  .trail-step {
+
+    width: 190px;
+
+  }
+
+  .trail-heading p {
+
+    font-size: 12px;
+
+  }
+
+  .trail-lesson-content {
+
+    font-size: 14px;
+
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .trail-node {
+
+    transition: none;
+
+  }
+
+}
+
+/* StudyQuest 2.0 — visual refresh; existing responsive behavior preserved */
+
+.trail-app { --trail-border: #2C3750; background: #0B1020; color: #F8FAFC; font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif; }
+
+.trail-sidebar { background: #11182A; border-color: var(--trail-border); }
+
+.trail-brand > span:first-child { background: #8B5CF6; color: #fff; box-shadow: 0 4px 0 #5322B4; }
+
+.trail-brand-accent { color: #A3E635; }
+
+.trail-nav-label, .trail-eyebrow { color: #A4B1C9; }
+
+.trail-sidebar nav a { color: #B8C3D8; }
+
+.trail-sidebar nav a:hover { background: #1D2840; }
+
+.trail-sidebar nav a.trail-nav-active { border-color: #6943B9; background: #2D2253; color: #D8C6FF; }
+
+.trail-avatar { background: #3D2D66; color: #E4D7FF; }
+
+.trail-topbar { background: #101729; }
+
+.trail-topbar span:first-child svg, .trail-heading-icon, .trail-info-card strong { color: #A3E635; }
+
+.trail-topbar-note svg { color: #FBBF24; }
+
+.trail-heading h1 { color: #F8FAFC; }
+
+.trail-heading p, .trail-tip-card p, .trail-info-card p { color: #A4B1C9; }
+
+.trail-heading-icon { background: #2D2253; border-color: #594387; }
+
+.trail-course-select select { background: #151E33; border-color: #34415F; color: #F8FAFC; }
+
+.trail-unit { background: linear-gradient(115deg, #7140D8, #8B5CF6); border: 1px solid #A68AF1; border-bottom: 5px solid #5322B4; }
+
+.trail-unit span, .trail-unit p, .trail-unit > svg { color: #F0E8FF; }
+
+.trail-path:before { border-color: #3E315F; }
+
+.trail-node { background: #3A2C64; border-color: #654C9A; box-shadow: 0 8px 0 #21183F, 0 11px 0 #0B1020; color: #DCCAFF; }
+
+.trail-node:hover { background: #563B92; }
+
+.trail-node-first { background: #A3E635; border-color: #C8F47D; box-shadow: 0 8px 0 #608E15, 0 0 0 10px #28351E; color: #1C2A0B; }
+
+.trail-node-first:hover { background: #B8F15C; }
+
+.trail-start-label { background: #26331E; border-color: #597A28; color: #C7F58D; }
+
+.trail-step-number, .trail-step h3 { background: #0B1020; }
+
+.trail-tip-card, .trail-info-card { border-color: var(--trail-border); background-color: #141B2D; }
+
+.trail-tip-card { background-image: radial-gradient(ellipse at 100% 0, #322251 0, transparent 65%); }
+
+.trail-tip-symbol { background: #34275A; color: #C8B1FF; }
+
+.trail-primary-button { background: #A3E635; color: #1D2C0B; border-bottom-color: #648D1D; }
+
+.trail-primary-button:hover { background: #B8F15C; }
+
+.trail-finish > svg { color: #A3E635; }
+
+.trail-app button:focus-visible, .trail-app a:focus-visible, .trail-app select:focus-visible { outline-color: #A3E635; }
+
+@media (prefers-reduced-motion: reduce) { .trail-app *, .trail-app *::before, .trail-app *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

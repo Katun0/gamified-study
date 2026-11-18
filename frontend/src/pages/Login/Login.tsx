@@ -1,342 +1,47 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Divider,
-  IconButton,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-
-import CloseIcon from "@mui/icons-material/Close";
-import GoogleIcon from "@mui/icons-material/Google";
-import FacebookIcon from "@mui/icons-material/Facebook";
-
-import { colors } from "../../theme/colors";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import type { FormEvent } from "react";
-import { useAuth } from "../../auth/useAuth";
+import { useState, type FormEvent } from 'react';
+import { Alert, Box, Button, CircularProgress, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { ArrowBackRounded, CodeRounded, EmailOutlined, LockOutlined, VisibilityOffOutlined, VisibilityOutlined, AutoAwesomeRounded } from '@mui/icons-material';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/useAuth';
+import { colors } from '../../theme/colors';
 
 export default function Login() {
-  
-  const navigate = useNavigate()
-  const { login, user, loading: checkingSession } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
+  const { login, user, loading: checkingSession } = useAuth();
   const successMessage = (location.state as { message?: string } | null)?.message;
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
+  const [error, setError] = useState('');
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      await login(email, password);
-      navigate("/trails", { replace: true });
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Erro ao conectar com o servidor.");
-    } finally {
-      setLoading(false);
-    }
+    event.preventDefault(); setError(''); setLoading(true);
+    try { await login(email, password); navigate('/trails', { replace: true }); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Erro ao conectar com o servidor.'); }
+    finally { setLoading(false); }
   };
-
-  const handleGoogleLogin = () => {
-    window.open(
-      "https://accounts.google.com/",
-      "_blank",
-      "noopener,noreferrer"
-    );
-  }
-
-  if (checkingSession) {
-    return <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center" }}><CircularProgress aria-label="Verificando sessão" /></Box>;
-  }
-
+  if (checkingSession) return <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}><CircularProgress /></Box>;
   if (user) return <Navigate to="/trails" replace />;
-
-  return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        width: "100%",
-        backgroundColor: colors.background,
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* Botão fechar */}
-      <IconButton
-        aria-label="Fechar"
-        onClick={() => navigate("/")}
-        sx={{
-          position: "absolute",
-          top: {
-            xs: 12,
-            sm: 18,
-          },
-          left: {
-            xs: 12,
-            sm: 18,
-          },
-          color: colors.textSecondary,
-
-          "&:hover": {
-            color: colors.text,
-            backgroundColor: "rgba(255,255,255,0.05)",
-          },
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-
-      {/* Criar conta */}
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={() => navigate("/register")}
-        sx={{
-          position: "absolute",
-          top: {
-            xs: 12,
-            sm: 18,
-          },
-          right: {
-            xs: 12,
-            sm: 18,
-          },
-          borderColor: colors.border,
-          color: colors.primary,
-          fontSize: {
-            xs: "0.7rem",
-            sm: "0.8rem",
-          },
-          fontWeight: 700,
-          px: {
-            xs: 1.5,
-            sm: 2,
-          },
-
-          "&:hover": {
-            borderColor: colors.primary,
-            backgroundColor: "rgba(66,181,245,0.05)",
-          },
-        }}
-      >
-        Criar conta
-      </Button>
-
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: 420,
-          margin: "auto",
-          px: 3,
-          py: 10,
-        }}
-      >
-        <Stack component="form" spacing={2} onSubmit={handleSubmit}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mb: 1,
-            }}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 800,
-                letterSpacing: "-1px",
-                background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`,
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Nome do nosso projeto
-            </Typography>
-          </Box>
-
-          <Typography
-            variant="h5"
-            align="center"
-            sx={{
-              fontWeight: 700,
-              mb: 1,
-            }}
-          >
-            Entrar
-          </Typography>
-
-          {successMessage && (
-            <Typography role="status" color="success.main" align="center" variant="body2">
-              {successMessage}
-            </Typography>
-          )}
-
-          {/* E-mail */}
-          <TextField
-            fullWidth
-            placeholder="E-mail ou nome de usuário"
-            type="email"
-            name="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            slotProps={{
-              input: {
-                sx: {
-                  backgroundColor: colors.surface,
-                  borderRadius: 2,
-                },
-              },
-            }}
-          />
-
-          {/* Senha */}
-          <TextField
-            fullWidth
-            placeholder="Senha"
-            type="password"
-            name="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            slotProps={{
-              input: {
-                sx: {
-                  backgroundColor: colors.surface,
-                  borderRadius: 2,
-                },
-
-                endAdornment: (
-                  <Button
-                    size="small"
-                    sx={{
-                      color: colors.textSecondary,
-                      fontSize: "0.7rem",
-                      fontWeight: 700,
-                      minWidth: "auto",
-                    }}
-                  >
-                    Esqueceu?
-                  </Button>
-                ),
-              },
-            }}
-          />
-
-          {error && <Typography role="alert" color="error" align="center">{error}</Typography>}
-
-          <Button
-            fullWidth
-            type="submit"
-            disabled={loading}
-            variant="contained"
-            color="primary"
-            sx={{
-              mt: 1,
-              minHeight: 50,
-              fontWeight: 800,
-              letterSpacing: "0.5px",
-              boxShadow: `0 4px 0 ${colors.primaryDark}`,
-
-              "&:active": {
-                transform: "translateY(2px)",
-                boxShadow: `0 2px 0 ${colors.primaryDark}`,
-              },
-            }}
-          >
-            {loading ? "Entrando..." : "Entrar"}
-          </Button>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              py: 1,
-            }}
-          >
-            <Divider sx={{ flex: 1, borderColor: colors.border }} />
-
-            <Typography
-              variant="body2"
-              sx={{
-                color: colors.textSecondary,
-                fontWeight: 700,
-              }}
-            >
-              OU
-            </Typography>
-
-            <Divider sx={{ flex: 1, borderColor: colors.border }} />
-          </Box>
-
-          {/* Login social */}
-          <Stack direction="row" spacing={1.5}>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={handleGoogleLogin}
-              startIcon={<GoogleIcon />}
-              sx={{
-                borderColor: colors.border,
-                color: colors.textSecondary,
-                minHeight: 48,
-
-                "&:hover": {
-                  borderColor: colors.primary,
-                  color: colors.text,
-                },
-              }}
-            >
-              Google
-            </Button>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<FacebookIcon />}
-              sx={{
-                borderColor: colors.border,
-                color: colors.textSecondary,
-                minHeight: 48,
-
-                "&:hover": {
-                  borderColor: colors.primary,
-                  color: colors.text,
-                },
-              }}
-            >
-              Facebook
-            </Button>
-          </Stack>
-
-          {/* Termos */}
-          <Typography
-            variant="caption"
-            align="center"
-            sx={{
-              color: colors.textSecondary,
-              opacity: 0.8,
-              lineHeight: 1.6,
-              mt: 2,
-            }}
-          >
-            Ao entrar no ..., você concorda com os nossos
-            <br />
-            Termos de Uso e Política de Privacidade.
-          </Typography>
+  return <Box sx={{ minHeight: '100vh', bgcolor: colors.background, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+    <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', justifyContent: 'space-between', p: 7, background: 'radial-gradient(circle at 80% 20%, #4C2C86, transparent 55%), #1A1531', borderRight: '1px solid #49376E' }}>
+      <Stack direction="row" alignItems="center" spacing={1.5}><Box sx={{ bgcolor: colors.primary, borderRadius: 3, p: 1, display: 'grid', placeItems: 'center' }}><CodeRounded /></Box><Typography sx={{ fontSize: 25, fontWeight: 900 }}>Study<Box component="span" sx={{ color: colors.secondary }}>Quest</Box></Typography></Stack>
+      <Box><AutoAwesomeRounded sx={{ color: colors.secondary, fontSize: 60, mb: 2 }} /><Typography sx={{ fontSize: 'clamp(2.8rem, 4vw, 4.7rem)', lineHeight: 1.08, letterSpacing: '-.06em', fontWeight: 900 }}>A aventura continua de onde você parou.</Typography><Typography sx={{ mt: 3, color: '#C8BEDC', fontSize: 18, lineHeight: 1.7 }}>Entre na sua conta e dê o próximo passo na sua jornada de programação.</Typography></Box>
+      <Typography sx={{ color: '#9C90B9', fontSize: 13 }}>StudyQuest · Aprenda. Pratique. Evolua.</Typography>
+    </Box>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', p: { xs: 2.5, sm: 5, md: 7 } }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center"><Button startIcon={<ArrowBackRounded />} onClick={() => navigate('/')} sx={{ color: colors.textSecondary }}>Início</Button><Button variant="outlined" onClick={() => navigate('/register')} sx={{ borderColor: colors.border, color: colors.secondary }}>Criar conta</Button></Stack>
+      <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', maxWidth: 440, m: 'auto', py: 6 }}>
+        <Box sx={{ display: { md: 'none' }, mb: 5 }}><Typography sx={{ fontSize: 29, fontWeight: 900 }}>Study<Box component="span" sx={{ color: colors.secondary }}>Quest</Box></Typography></Box>
+        <Typography component="h1" sx={{ fontSize: { xs: 34, sm: 43 }, fontWeight: 900, letterSpacing: '-.055em' }}>Bem-vindo de volta!</Typography><Typography sx={{ color: colors.textSecondary, mt: 1, mb: 4 }}>Suas próximas conquistas estão esperando por você.</Typography>
+        <Stack spacing={2.5}>
+          {successMessage && <Alert severity="success">{successMessage}</Alert>}{error && <Alert severity="error" role="alert">{error}</Alert>}
+          <TextField label="E-mail" type="email" name="email" autoComplete="email" required fullWidth value={email} onChange={e => setEmail(e.target.value)} slotProps={{ input: { startAdornment: <InputAdornment position="start"><EmailOutlined sx={{ color: colors.textSecondary }} /></InputAdornment> } }} />
+          <TextField label="Senha" type={showPassword ? 'text' : 'password'} name="password" autoComplete="current-password" required fullWidth value={password} onChange={e => setPassword(e.target.value)} slotProps={{ input: { startAdornment: <InputAdornment position="start"><LockOutlined sx={{ color: colors.textSecondary }} /></InputAdornment>, endAdornment: <InputAdornment position="end"><IconButton aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <VisibilityOffOutlined /> : <VisibilityOutlined />}</IconButton></InputAdornment> } }} />
+          <Button type="submit" variant="contained" size="large" disabled={loading} sx={{ minHeight: 56 }}>{loading ? 'Entrando...' : 'Entrar na minha conta'}</Button>
+          <Typography sx={{ textAlign: 'center', color: colors.textSecondary, fontSize: 14 }}>Ainda não tem uma conta? <Box component="a" href="/register" sx={{ color: colors.secondary, fontWeight: 800, textDecoration: 'none' }}>Comece sua aventura</Box></Typography>
         </Stack>
       </Box>
     </Box>
-  );
+  </Box>;
 }

@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Problem;
+use App\Entity\User;
+use App\Progress\StudyProgress;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use App\Execution\CodeExecutorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,8 +29,9 @@ final class ProblemCheckController
     }
 
     #[Route('/api/problems/{id<\d+>}/check', methods: ['POST'])]
-    public function check(Problem $problem, Request $request, CodeExecutorInterface $executor): JsonResponse
+    public function check(Problem $problem, Request $request, CodeExecutorInterface $executor, StudyProgress $progress, #[CurrentUser] User $user): JsonResponse
     {
+        $progress->requireProblem($problem, $user);
         $expected = $problem->getExpectedOutput();
         if ($expected === null) {
             return new JsonResponse(['error' => 'Este problema ainda não tem um caso de teste.'], 409);
@@ -44,6 +48,9 @@ final class ProblemCheckController
         $status = $result['status'];
         if ($status === 'completed') {
             $status = self::normalize($result['stdout']) === self::normalize($expected) ? 'accepted' : 'wrong_answer';
+        }
+        if ($status === 'accepted') {
+            $progress->accept($problem, $user);
         }
         return new JsonResponse(['status' => $status, 'input' => $problem->getTestInput(), 'expected' => $expected,
             'actual' => $result['stdout'], 'errorOutput' => $result['stderr']]);

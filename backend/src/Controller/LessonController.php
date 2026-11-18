@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Lesson;
+use App\Entity\User;
+use App\Progress\StudyProgress;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use App\Repository\CoursesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class LessonController
 {
     #[Route('/api/courses/{id}/lessons', name: 'api_course_lessons_list', methods: ['GET'])]
-    public function list(int $id, CoursesRepository $courses, EntityManagerInterface $entityManager): JsonResponse
+    public function list(int $id, CoursesRepository $courses, EntityManagerInterface $entityManager, StudyProgress $progress, #[CurrentUser] User $user): JsonResponse
     {
         $course = $courses->find($id);
         if (!$course) {
@@ -20,7 +23,32 @@ final class LessonController
         }
 
         $lessons = $entityManager->getRepository(Lesson::class)->findBy(['course' => $course], ['id' => 'ASC']);
-        return new JsonResponse(array_map([$this, 'serializeLesson'], $lessons));
+        $states = $progress->course($id, $user);
+        return new JsonResponse(array_map(function (Lesson $lesson) use ($states): array {
+            $state = $states[$lesson->getId()];
+            $data = $this->serializeLesson($lesson);
+            $data['locked'] = $state['locked'];
+            $data['completed'] = $state['completed'];
+            $data['current'] = $state['current'] ?? false;
+            $data['problemCount'] = count($state['problems']);
+            if ($state['locked']) {
+                $data['content'] = '';
+            }
+            return $data;
+        }, $lessons), headers: ['Cache-Control' => 'no-store']);
+    }
+
+    #[Route('/api/lessons/{id<\d+>}/complete', methods: ['POST'])]
+    public function complete(Lesson $lesson, StudyProgress $progress, #[CurrentUser] User $user): JsonResponse
+    {
+        $state = $progress->requireLesson($lesson, $user);
+        if ($state['problems'] !== [] && !$state['completed']) {
+            return new JsonResponse(['error' => 'Resolva todos os problemas desta lição.'], 409);
+        }
+        if ($state['problems'] === []) {
+            $progress->completeReading($lesson, $user);
+        }
+        return new JsonResponse(['completed' => true]);
     }
 
     #[Route('/api/lessons', name: 'api_lessons_create', methods: ['POST'])]

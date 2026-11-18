@@ -10,7 +10,7 @@ const labels = {
 };
 type Result = TestCase & { status: keyof typeof labels; actual: string; errorOutput: string };
 
-export function ProblemExercise({ id, test }: { id: number; test: TestCase | null }) {
+export function ProblemExercise({ id, test, onAccepted }: { id: number; test: TestCase | null; onAccepted?: () => void }) {
   const [code, setCode] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [busy, setBusy] = useState(false);
@@ -20,9 +20,11 @@ export function ProblemExercise({ id, test }: { id: number; test: TestCase | nul
     setResult(null);
     setError("");
     try {
-      setResult(await apiRequest<Result>(`/api/problems/${id}/check`, {
+      const checked = await apiRequest<Result>(`/api/problems/${id}/check`, {
         method: "POST", body: JSON.stringify({ code }),
-      }));
+      });
+      setResult(checked);
+      if (checked.status === 'accepted') onAccepted?.();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível verificar a resposta.");
     } finally { setBusy(false); }

@@ -12,3 +12,5 @@
 @media(max-width:900px){.trail-right{display:none}.trail-columns{grid-template-columns:minmax(0,1fr);max-width:650px}.trail-topbar .trail-topbar-note{display:none}}
 @media(max-width:600px){.trail-app{display:block}.trail-sidebar{position:relative;height:auto;width:100%;padding:17px 20px;border-right:0;border-bottom:2px solid var(--trail-border);flex-direction:row;align-items:center;justify-content:space-between;gap:10px}.trail-nav-label,.trail-sidebar nav,.trail-sidebar-bottom>div{display:none}.trail-sidebar-bottom{margin:0;padding:0;border:0}.trail-brand{font-size:22px}.trail-topbar{height:54px;padding:0 22px;font-size:12px}.trail-columns{padding:27px 20px}.trail-heading h1{font-size:29px}.trail-unit{padding:20px}.trail-unit h2{font-size:20px}.trail-unit>svg{font-size:30px}.trail-step-1{transform:translateX(-45px)}.trail-step-3{transform:translateX(45px)}.trail-step{width:190px}.trail-heading p{font-size:12px}.trail-lesson-content{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.trail-node{transition:none}}
+
+.trail-node:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }

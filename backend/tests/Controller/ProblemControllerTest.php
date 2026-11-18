@@ -4,6 +4,10 @@ namespace App\Tests\Controller;
 
 use App\Controller\ProblemController;
 use App\Entity\Lesson;
+use App\Entity\Courses;
+use App\Entity\User;
+use App\Progress\StudyProgress;
+use Doctrine\DBAL\Connection;
 use App\Entity\Problem;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -62,13 +66,22 @@ final class ProblemControllerTest extends TestCase
 
     public function testListOnlyReturnsProblemsOfRequestedLessonInCreationOrder(): void
     {
-        $lesson = new Lesson();
+        $course = new Courses();
+        (new \ReflectionProperty(Courses::class, 'id'))->setValue($course, 1);
+        $lesson = (new Lesson())->setCourse($course);
+        (new \ReflectionProperty(Lesson::class, 'id'))->setValue($lesson, 1);
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['id' => 1, 'problem_id' => 0, 'solved_id' => null, 'read_id' => null],
+        ]);
+        $problem = new Problem($lesson, 'Print', 'Hello World');
+        (new \ReflectionProperty(Problem::class, 'id'))->setValue($problem, 0);
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(self::once())->method('findBy')->with(['lesson' => $lesson], ['id' => 'ASC'])->willReturn([new Problem($lesson, 'Print', 'Hello World')]);
+        $repository->expects(self::once())->method('findBy')->with(['lesson' => $lesson], ['id' => 'ASC'])->willReturn([$problem]);
         $em = $this->createStub(EntityManagerInterface::class);
         $em->method('find')->willReturn($lesson);
         $em->method('getRepository')->willReturn($repository);
-        $response = (new ProblemController())->list(1, $em);
+        $response = (new ProblemController())->list(1, $em, new StudyProgress($connection), new User());
         self::assertSame(200, $response->getStatusCode());
         self::assertCount(1, json_decode($response->getContent(), true));
     }

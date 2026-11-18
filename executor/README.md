@@ -49,7 +49,25 @@ A imagem não é baixada durante execuções. Fixe um digest aprovado da imagem 
 - Logs Docker desabilitados; remoção em sucesso, timeout, cancelamento ou falha.
 
 Subprocess controla somente Docker, usando listas de argumentos sem shell. O código do aluno nunca é executado no host. Código e entrada são enviados por stdin.
-OOMKilled produz memory_limit; MemoryError retornado pelo próprio Python pode aparecer como runtime_error.
+OOMKilled e MemoryError não tratado produzem memory_limit. O wrapper aplica também RLIMIT_AS ao espaço de endereçamento do Python, com o mesmo valor configurado para memória. Os limites do container continuam ativos. O código de saída 120 é reservado pelo wrapper para MemoryError e 121 para retorno acima do limite de saída.
+
+## Testes de função
+
+O aluno escreve a função completa, por exemplo:
+
+```python
+def solution():
+    nome = "João"
+    return nome
+```
+
+Cadastre modo **Função**, argumentos `[]` e retorno esperado JSON `"João"`.
+Com parâmetros, use por exemplo `def solution(nome): return nome` e argumentos `["João"]`.
+Para aceitar qualquer nome, selecione a validação por tipo string já disponível no cadastro; uma comparação exata continua exigindo o texto esperado.
+
+O executor chama solution(*args) dentro da sandbox. O retorno é enviado em um canal separado dos prints, sem marcadores de texto. Em execuções de função bem-sucedidas, prints e mensagens escritas pelo aluno em stderr são reunidos no campo stdout de depuração; em falhas, os diagnósticos permanecem em stderr. O Symfony compara o campo result com o teste do banco. Um retorno null é válido, mas a ausência do campo result é erro. Retornos não JSON e números não finitos são rejeitados.
+
+Publique novamente a imagem do serviço executor e atualize o backend. Não há migration para esta correção. O pipeline executa os testes de integração Docker antes de publicar a imagem.
 
 ## Testes
 ```powershell

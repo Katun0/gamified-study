@@ -50,6 +50,19 @@ class DockerRunnerTest(unittest.TestCase):
         result = self.collect(FakeProcess(), {"Status": "exited", "ExitCode": 137, "OOMKilled": True})
         self.assertEqual(result.status, "memory_limit")
 
+    def test_python_memory_error_is_memory_limit_without_oom_flag(self):
+        result = self.collect(FakeProcess(), {"Status": "exited", "ExitCode": 120, "OOMKilled": False})
+        self.assertEqual(result.status, "memory_limit")
+
+    def test_function_result_envelope_and_debug_output(self):
+        for envelope, status in [(b'{"result": null}', 'completed'), (b'{}', 'runtime_error'), (b'', 'runtime_error')]:
+            with self.subTest(envelope=envelope), patch.object(self.runner, '_command', return_value='{"Status":"exited","ExitCode":0}'):
+                result = self.runner._collect(FakeProcess(envelope, b'debug\n'), 'test', ExecutionRequest('def solution(): pass', mode='function'), self.limits)
+                self.assertEqual(result.status, status)
+                if status == 'completed':
+                    self.assertIsNone(result.result)
+                    self.assertEqual(result.stdout, 'debug\n')
+
     def test_combined_output_is_bounded(self):
         result = self.collect(FakeProcess(b"a" * 9000, b"b" * 9000), limits=ExecutionLimits(output_bytes=100))
         self.assertEqual(result.status, "output_limit")
@@ -81,6 +94,10 @@ class DockerRunnerTest(unittest.TestCase):
         for kwargs in [{"wall_time_seconds": 0}, {"memory_megabytes": -1}, {"processes": 10000}, {"output_bytes": True}]:
             with self.assertRaises(ValueError):
                 ExecutionLimits(**kwargs)
+
+    def test_bootstrap_is_valid_python(self):
+        from app.sandbox.bootstrap import BOOTSTRAP
+        compile(BOOTSTRAP, '<sandbox-bootstrap>', 'exec')
 
     def test_missing_docker_is_infrastructure_error(self):
         with patch("app.sandbox.docker_runner.subprocess.run", side_effect=FileNotFoundError):

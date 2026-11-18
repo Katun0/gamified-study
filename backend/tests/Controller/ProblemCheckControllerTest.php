@@ -94,6 +94,10 @@ final class ProblemCheckControllerTest extends TestCase
         return [
             [[1, 2], 3, 3, 'accepted'],
             [[1, 2], 3, 4, 'wrong_answer'],
+            [[], 'João', 'João', 'accepted'],
+            [[], 'João', 'Maria', 'wrong_answer'],
+            [[], '01', '1', 'wrong_answer'],
+            [[], null, null, 'accepted'],
             [['a'], 'a', 'a', 'accepted'],
             [[[1]], [1], [1], 'accepted'],
             [[['a' => 1]], ['a' => 1], ['a' => 1], 'accepted'],

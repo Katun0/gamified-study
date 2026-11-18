@@ -35,6 +35,36 @@ class SandboxIntegrationTest(unittest.TestCase):
     def test_memory_limit(self):
         self.assertEqual(self.run_code("a = bytearray(512 * 1024 * 1024)").status, "memory_limit")
 
+    def run_function(self, code, args=None, **limits):
+        return self.runner.run(ExecutionRequest(code, mode="function", func_args=args), ExecutionLimits(**limits))
+
+    def test_function_return_is_separate_from_prints(self):
+        result = self.run_function('print("---RESULT_START---")\ndef solution():\n print("debug")\n return "João"', [])
+        self.assertEqual(result.status, "completed", result.stderr)
+        self.assertEqual(result.result, "João")
+        self.assertEqual(result.stdout, "---RESULT_START---\ndebug\n")
+
+    def test_function_arguments_and_json_returns(self):
+        for value in [None, True, 42, 1.5, "Olá", [1, 2], {"a": 1}]:
+            with self.subTest(value=value):
+                result = self.run_function('def solution(value):\n return value', [value])
+                self.assertEqual(result.status, "completed", result.stderr)
+                self.assertEqual(result.result, value)
+        result = self.run_function('def solution(a, b):\n return a + b', [2, 3])
+        self.assertEqual(result.result, 5)
+
+    def test_function_errors_and_missing_result(self):
+        for code in ['x = 1', 'def solution(x): return x', 'async def solution(): pass',
+                     'def solution(): return {1, 2}', 'def solution(): return float("nan")',
+                     'def solution(): raise ValueError("erro")', 'import sys; sys.exit(0)']:
+            with self.subTest(code=code):
+                self.assertEqual(self.run_function(code, []).status, "runtime_error")
+
+    def test_function_resource_limits(self):
+        self.assertEqual(self.run_function('def solution(): return bytearray(512 * 1024 * 1024)').status, "memory_limit")
+        self.assertEqual(self.run_function('def solution():\n while True: pass', wall_time_seconds=1).status, "time_limit")
+        self.assertEqual(self.run_function('def solution(): return "x" * 10000', output_bytes=1000).status, "output_limit")
+
     def test_no_external_network(self):
         code = "import socket\nsocket.create_connection(('1.1.1.1', 443), timeout=1)"
         self.assertEqual(self.run_code(code).status, "runtime_error")

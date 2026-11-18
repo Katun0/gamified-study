@@ -16,8 +16,6 @@ import {
   Close,
   CodeRounded,
   FlagRounded,
-  HomeRounded,
-  LogoutRounded,
   MenuBookRounded,
   RouteRounded,
   SchoolRounded,
@@ -26,13 +24,14 @@ import {
 import { apiRequest } from "../../lib/api";
 import { useAuth } from "../../auth/useAuth";
 import "./Trail.css";
+import StudySidebar from "../../components/layout/StudySidebar";
 import LessonProblems from "../Problems/LessonProblems";
 
 type Course = { id: number; name: string; description: string };
 type Lesson = { id: number; title: string; content: string; courseId: number };
 
 export default function Trail() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
   const [lessonData, setLessons] = useState<Lesson[]>([]);
@@ -115,46 +114,7 @@ export default function Trail() {
 
   return (
     <div className="trail-app">
-      <aside className="trail-sidebar">
-        <Link className="trail-brand" to="/">
-          <span>
-            <CodeRounded />
-          </span>
-          Study<span className="trail-brand-accent">Quest</span>
-        </Link>
-        <span className="trail-nav-label">SUA JORNADA</span>
-        <nav aria-label="Navegação principal">
-          <Link className="trail-nav-active" to="/trails" aria-current="page">
-            <RouteRounded /> Minha trilha
-          </Link>
-          <Link to="/">
-            <HomeRounded /> Início
-          </Link>
-          {user?.roles.includes("ROLE_ADMIN") && (
-            <Link to="/courses/new">
-              <SchoolRounded /> Criar curso
-            </Link>
-          )}
-          {user?.roles.includes("ROLE_ADMIN") && (
-            <Link to="/problems/new">
-              <CodeRounded /> Criar problema
-            </Link>
-          )}
-        </nav>
-        <div className="trail-sidebar-bottom">
-          <div className="trail-avatar">
-            {user?.name.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <strong>{user?.name}</strong>
-            <small>Um passo de cada vez</small>
-          </div>
-          <button aria-label="Sair da conta" onClick={logout}>
-            <LogoutRounded />
-          </button>
-        </div>
-      </aside>
-
+      <StudySidebar current="trails" />
       <div className="trail-workspace">
         <header className="trail-topbar">
           <span>

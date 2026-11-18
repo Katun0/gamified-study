@@ -1377,3 +1377,15 @@
 .trail-app button:focus-visible, .trail-app a:focus-visible, .trail-app select:focus-visible { outline-color: #A3E635; }
 
 @media (prefers-reduced-motion: reduce) { .trail-app *, .trail-app *::before, .trail-app *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Shared sidebar: Trail + Admin */
+.trail-sidebar .trail-nav-subtitle { display: block; margin: 20px 14px 5px; font-size: 9px; }
+.trail-sidebar nav { gap: 7px; }
+.trail-sidebar nav a { padding: 11px 12px; }
+@media (max-width: 600px) {
+  .trail-sidebar { flex-wrap: wrap; }
+  .trail-sidebar nav { display: flex; order: 4; width: 100%; overflow-x: auto; padding-top: 12px; }
+  .trail-sidebar nav a { white-space: nowrap; font-size: 12px; padding: 9px; }
+  .trail-sidebar .trail-nav-label { display: none; }
+  .trail-sidebar .trail-sidebar-bottom { margin-left: auto; }
+}

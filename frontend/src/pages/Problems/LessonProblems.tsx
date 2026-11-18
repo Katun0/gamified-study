@@ -7,13 +7,13 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { CodeRounded } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
 import {
   ProblemExercise,
   TestCaseEditor,
   type TestCase,
 } from "./ProblemExercise";
-
 export type Problem = {
   id: number;
   lessonId: number;
@@ -21,7 +21,6 @@ export type Problem = {
   statement: string;
   testCase: TestCase | null;
 };
-
 export default function LessonProblems({
   lessonId,
   editTests = false,
@@ -54,10 +53,14 @@ export default function LessonProblems({
       active = false;
     };
   }, [lessonId, retry]);
-
   return (
-    <Stack spacing={2} sx={{ mt: 3 }}>
-      <Typography component="h2" variant="h6">
+    <Stack spacing={2.5} sx={{ mt: 3 }}>
+      <Typography
+        component="h2"
+        variant="h6"
+        sx={{ fontWeight: 850, display: "flex", alignItems: "center", gap: 1 }}
+      >
+        <CodeRounded sx={{ color: "#A3E635" }} />
         Problemas da lição
       </Typography>
       {loading ? (
@@ -70,7 +73,7 @@ export default function LessonProblems({
               onClick={() => {
                 setError("");
                 setLoading(true);
-                setRetry((value) => value + 1);
+                setRetry((v) => v + 1);
               }}
             >
               Tentar novamente
@@ -80,45 +83,42 @@ export default function LessonProblems({
           {error}
         </Alert>
       ) : problems.length === 0 ? (
-        <Typography color="text.secondary">
+        <Alert severity="info">
           Esta lição ainda não tem problemas cadastrados.
-        </Typography>
+        </Alert>
       ) : (
-        problems.map((problem, index) => (
-          <Box
-            component="article"
-            key={problem.id}
-            sx={{
-              p: 2.5,
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="overline" color="primary">
-              Problema {index + 1}
+        problems.map((p, index) => (
+          <Box component="article" key={p.id} className="sq-problem-card">
+            <Typography className="sq-problem-card-title">
+              DESAFIO {String(index + 1).padStart(2, "0")}
             </Typography>
             <Typography
               component="h3"
-              variant="subtitle1"
-              sx={{ fontWeight: 800, overflowWrap: "anywhere" }}
+              sx={{
+                fontSize: 19,
+                fontWeight: 850,
+                mt: 1,
+                overflowWrap: "anywhere",
+              }}
             >
-              {problem.title}
+              {p.title}
             </Typography>
             <Typography
               sx={{
-                mt: 1,
+                mt: 1.5,
+                mb: 2,
+                color: "#B8C7DB",
                 whiteSpace: "pre-wrap",
                 overflowWrap: "anywhere",
                 lineHeight: 1.8,
               }}
             >
-              {problem.statement}
+              {p.statement}
             </Typography>
             {editTests ? (
-              <TestCaseEditor id={problem.id} test={problem.testCase} />
+              <TestCaseEditor id={p.id} test={p.testCase} />
             ) : (
-              <ProblemExercise id={problem.id} test={problem.testCase} />
+              <ProblemExercise id={p.id} test={p.testCase} />
             )}
           </Box>
         ))

@@ -37,9 +37,15 @@ final class ProblemCheckControllerTest extends TestCase
         (new \ReflectionProperty(Problem::class, 'id'))->setValue($problem, 1);
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['id' => 1, 'problem_id' => 1, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => null, 'read_id' => null],
         ]);
-        $connection->expects($expectedStatus === 'accepted' ? self::once() : self::never())->method('executeStatement');
+        $connection->expects($expectedStatus === 'accepted' ? self::exactly(2) : self::never())->method('executeStatement');
+        $connection->method('transactional')->willReturnCallback(fn (callable $operation) => $operation($connection));
+        $connection->method('fetchFirstColumn')->willReturn(['easy']);
+        $connection->method('fetchOne')->willReturnCallback(static function (string $sql) use ($expectedStatus): int {
+            if (str_contains($sql, 'FOR UPDATE')) return 1;
+            return $expectedStatus === 'accepted' ? 50 : 0;
+        });
         $problem->configureTest("Olá\n", 'Olá');
         $executor = $this->createMock(CodeExecutorInterface::class);
         $executor->expects(self::once())->method('execute')->with('print(input())', "Olá\n")
@@ -47,5 +53,7 @@ final class ProblemCheckControllerTest extends TestCase
         $request = Request::create('/', 'POST', content: '{"code":"print(input())","expected":"ignorado"}');
         $response = (new ProblemCheckController())->check($problem, $request, $executor, new StudyProgress($connection), new User());
         self::assertSame($expectedStatus, json_decode($response->getContent(), true)['status']);
+        self::assertSame($expectedStatus === 'accepted' ? 50 : 0, json_decode($response->getContent(), true)['xpAwarded']);
+        self::assertSame($expectedStatus === 'accepted' ? 50 : 0, json_decode($response->getContent(), true)['totalXp']);
     }
 }

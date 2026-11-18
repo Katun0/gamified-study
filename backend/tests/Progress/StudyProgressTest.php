@@ -26,10 +26,10 @@ final class StudyProgressTest extends TestCase
     public function testSequenceAndReadingLessons(): void
     {
         $rows = [
-            ['id' => 1, 'problem_id' => 1, 'solved_id' => 1, 'read_id' => null],
-            ['id' => 1, 'problem_id' => 2, 'solved_id' => null, 'read_id' => null],
-            ['id' => 2, 'problem_id' => null, 'solved_id' => null, 'read_id' => null],
-            ['id' => 3, 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => 1, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 2, 'solved_id' => null, 'read_id' => null],
+            ['id' => 2, 'difficulty' => 'easy', 'problem_id' => null, 'solved_id' => null, 'read_id' => null],
+            ['id' => 3, 'difficulty' => 'easy', 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
         ];
         $user = new User();
         $state = $this->progress($rows)->course(1, $user);
@@ -51,9 +51,9 @@ final class StudyProgressTest extends TestCase
     public function testNewUserAndAdministrator(): void
     {
         $rows = [
-            ['id' => 1, 'problem_id' => 1, 'solved_id' => null, 'read_id' => null],
-            ['id' => 1, 'problem_id' => 2, 'solved_id' => null, 'read_id' => null],
-            ['id' => 2, 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 2, 'solved_id' => null, 'read_id' => null],
+            ['id' => 2, 'difficulty' => 'easy', 'problem_id' => 3, 'solved_id' => null, 'read_id' => null],
         ];
         $progress = $this->progress($rows);
         $state = $progress->course(1, new User());
@@ -75,8 +75,8 @@ final class StudyProgressTest extends TestCase
         $problem = new Problem($lesson, 'Locked', 'Locked');
         (new \ReflectionProperty(Problem::class, 'id'))->setValue($problem, 2);
         $progress = $this->progress([
-            ['id' => 1, 'problem_id' => 1, 'solved_id' => null, 'read_id' => null],
-            ['id' => 1, 'problem_id' => 2, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 1, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 2, 'solved_id' => null, 'read_id' => null],
         ]);
         $executor = $this->createMock(CodeExecutorInterface::class);
         $executor->expects(self::never())->method('execute');

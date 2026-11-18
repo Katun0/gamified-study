@@ -23,6 +23,16 @@ class Problem
     #[ORM\Column(type: 'text')]
     private string $statement;
 
+    #[ORM\Column(length: 10, enumType: ProblemDifficulty::class, options: ['default' => 'easy'])]
+    private ProblemDifficulty $difficulty = ProblemDifficulty::Easy;
+
+    public function getDifficulty(): ProblemDifficulty { return $this->difficulty; }
+
+    public function setDifficulty(ProblemDifficulty $difficulty): void
+    {
+        $this->difficulty = $difficulty;
+    }
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $expectedOutput = null;
 

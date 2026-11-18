@@ -49,11 +49,13 @@ final class ProblemCheckController
         if ($status === 'completed') {
             $status = self::normalize($result['stdout']) === self::normalize($expected) ? 'accepted' : 'wrong_answer';
         }
+        $xpAwarded = 0;
         if ($status === 'accepted') {
-            $progress->accept($problem, $user);
+            $xpAwarded = $progress->accept($problem, $user);
         }
         return new JsonResponse(['status' => $status, 'input' => $problem->getTestInput(), 'expected' => $expected,
-            'actual' => $result['stdout'], 'errorOutput' => $result['stderr']]);
+            'actual' => $result['stdout'], 'errorOutput' => $result['stderr'], 'xpAwarded' => $xpAwarded,
+            'totalXp' => $progress->totalXp($user)]);
     }
 
     private static function normalize(string $value): string

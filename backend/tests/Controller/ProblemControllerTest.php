@@ -45,6 +45,29 @@ final class ProblemControllerTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
     }
 
+    public function testDifficultyControlsRewardAndRejectsInvalidValues(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('find')->willReturn(new Lesson());
+        $em->expects(self::once())->method('persist');
+        $em->expects(self::exactly(2))->method('flush');
+        $controller = new ProblemController();
+        $body = ['lessonId' => 1, 'title' => 'Print', 'statement' => 'Hello'];
+        foreach (['unknown', '', [], null] as $invalid) {
+            $response = $controller->create(Request::create('/api/problems', 'POST', content: json_encode([...$body, 'difficulty' => $invalid])), $em);
+            self::assertSame(422, $response->getStatusCode());
+            $response = $controller->changeDifficulty(new Problem(new Lesson(), 'Print', 'Hello'), Request::create('/', 'PATCH', content: json_encode(['difficulty' => $invalid])), $em);
+            self::assertSame(422, $response->getStatusCode());
+        }
+        $response = $controller->create(Request::create('/api/problems', 'POST', content: json_encode([...$body, 'difficulty' => 'hard', 'xpReward' => 9999])), $em);
+        $data = json_decode($response->getContent(), true);
+        self::assertSame('hard', $data['difficulty']);
+        self::assertSame(200, $data['xpReward']);
+        $problem = new Problem(new Lesson(), 'Print', 'Hello');
+        $response = $controller->changeDifficulty($problem, Request::create('/', 'PATCH', content: '{"difficulty":"medium"}'), $em);
+        self::assertSame(100, json_decode($response->getContent(), true)['xpReward']);
+    }
+
     public function testMultipleProblemsCanBelongToOneLesson(): void
     {
         $lesson = new Lesson();
@@ -72,7 +95,7 @@ final class ProblemControllerTest extends TestCase
         (new \ReflectionProperty(Lesson::class, 'id'))->setValue($lesson, 1);
         $connection = $this->createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['id' => 1, 'problem_id' => 0, 'solved_id' => null, 'read_id' => null],
+            ['id' => 1, 'difficulty' => 'easy', 'problem_id' => 0, 'solved_id' => null, 'read_id' => null],
         ]);
         $problem = new Problem($lesson, 'Print', 'Hello World');
         (new \ReflectionProperty(Problem::class, 'id'))->setValue($problem, 0);

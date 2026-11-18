@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import { CodeRounded } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
+import DifficultyEditor from "./DifficultyEditor";
+import { difficultyLabels, type Difficulty } from "./difficulty";
 import {
   ProblemExercise,
   TestCaseEditor,
@@ -20,13 +22,19 @@ export type Problem = {
   title: string;
   statement: string;
   testCase: TestCase | null;
+  locked: boolean;
+  completed: boolean;
+  difficulty: Difficulty;
+  xpReward: number;
 };
 export default function LessonProblems({
   lessonId,
   editTests = false,
+  onProgress,
 }: {
   lessonId: number;
   editTests?: boolean;
+  onProgress?: () => void;
 }) {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,22 +111,48 @@ export default function LessonProblems({
             >
               {p.title}
             </Typography>
-            <Typography
-              sx={{
-                mt: 1.5,
-                mb: 2,
-                color: "#B8C7DB",
-                whiteSpace: "pre-wrap",
-                overflowWrap: "anywhere",
-                lineHeight: 1.8,
-              }}
-            >
-              {p.statement}
+            <Typography color="text.secondary" sx={{ mt: 1 }}>
+              {difficultyLabels[p.difficulty]}
             </Typography>
-            {editTests ? (
-              <TestCaseEditor id={p.id} test={p.testCase} />
+            {p.completed && (
+              <Alert severity="success" sx={{ mt: 1 }}>Problema concluído.</Alert>
+            )}
+            {p.locked ? (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Resolva os problemas anteriores para desbloquear este desafio.
+              </Alert>
             ) : (
-              <ProblemExercise id={p.id} test={p.testCase} />
+              <>
+                <Typography
+                  sx={{
+                    mt: 1.5,
+                    mb: 2,
+                    color: "#B8C7DB",
+                    whiteSpace: "pre-wrap",
+                    overflowWrap: "anywhere",
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {p.statement}
+                </Typography>
+                {editTests ? (
+                  <>
+                  <DifficultyEditor id={p.id} difficulty={p.difficulty} onSaved={(updated) => {
+                    setProblems((items) => items.map((item) => item.id === p.id ? { ...item, ...updated } : item));
+                  }} />
+                  <TestCaseEditor id={p.id} test={p.testCase} />
+                  </>
+                ) : (
+                  <ProblemExercise
+                    id={p.id}
+                    test={p.testCase}
+                    onSuccess={() => {
+                      setRetry((value) => value + 1);
+                      onProgress?.();
+                    }}
+                  />
+                )}
+              </>
             )}
           </Box>
         ))

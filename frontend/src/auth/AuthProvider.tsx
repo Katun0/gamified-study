@@ -76,8 +76,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateTotalXp = (userId: number, totalXp: number) => {
+    setUser((current) => current?.id === userId
+      ? { ...current, totalXp: Math.max(current.totalXp, totalXp) }
+      : current);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, updateTotalXp }}>
       {error ? <Stack spacing={2} sx={{ p: 3 }}>
         <Alert severity="error">{error}</Alert>
         <Button onClick={() => { setError(""); setLoading(true); setRevision((value) => value + 1); }}>Tentar novamente</Button>

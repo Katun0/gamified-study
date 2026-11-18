@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Alert, Button, Stack } from "@mui/material";
 import { apiRequest, apiUrl } from "../lib/api";
 
-import { AuthContext, type User } from "./useAuth";
+import { AuthContext, type User, type Progression } from "./useAuth";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -76,10 +76,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateTotalXp = (userId: number, totalXp: number) => {
-    setUser((current) => current?.id === userId
-      ? { ...current, totalXp: Math.max(current.totalXp, totalXp) }
-      : current);
+  const updateTotalXp = (userId: number, totalXp: number, progression?: Progression) => {
+    if (!Number.isSafeInteger(totalXp) || totalXp < 0) return;
+    setUser((current) => {
+      if (current?.id !== userId) return current;
+      const previous = Number.isFinite(current.totalXp) ? current.totalXp : 0;
+      if (totalXp < previous) return current;
+      return { ...current, totalXp, progression: progression ?? (totalXp === previous ? current.progression : undefined) };
+    });
   };
 
   return (

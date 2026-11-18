@@ -23,7 +23,7 @@ import {
   StarRounded,
 } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
-import { useAuth } from "../../auth/useAuth";
+import { useAuth, type Progression } from "../../auth/useAuth";
 import "./Trail.css";
 import StudySidebar from "../../components/layout/StudySidebar";
 import LessonProblems from "../Problems/LessonProblems";
@@ -125,10 +125,10 @@ export default function Trail() {
     setCompleting(true);
     setError("");
     try {
-      const result = await apiRequest<{ totalXp: number }>(`/api/lessons/${lesson.id}/complete`, {
+      const result = await apiRequest<{ totalXp: number; progression?: Progression }>(`/api/lessons/${lesson.id}/complete`, {
         method: "POST",
       });
-      if (user) updateTotalXp(user.id, result.totalXp);
+      if (user) updateTotalXp(user.id, result.totalXp, result.progression);
       setProgressRevision((value) => value + 1);
     } catch (cause) {
       setError(

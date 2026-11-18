@@ -18,6 +18,7 @@ final class MeController
             'email' => $user->getEmail(),
             'roles' => $user->getRoles(),
             'totalXp' => $user->getTotalXp(),
+            'progression' => \App\Progress\UserLevel::describe($user->getTotalXp()),
         ], headers: ['Cache-Control' => 'no-store']);
     }
 }

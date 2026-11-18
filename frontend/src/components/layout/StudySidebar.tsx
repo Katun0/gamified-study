@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Box, LinearProgress, Typography } from "@mui/material";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import {
@@ -97,7 +98,18 @@ export default function StudySidebar({ current }: Props) {
         </div>
         <div>
           <strong>{user?.name || "Estudante"}</strong>
-          <small aria-live="polite">{(user?.totalXp ?? 0).toLocaleString("pt-BR")} XP conquistados</small>
+          <small aria-live="polite">{(Number.isFinite(user?.totalXp) ? user!.totalXp : 0).toLocaleString("pt-BR")} XP conquistados</small>
+          {user?.progression && <Box sx={{ mt: 1, minWidth: 130 }} aria-live="polite">
+            <Typography sx={{ fontSize: 12, fontWeight: 800, color: "#a3e635" }}>Nível {user.progression.level}</Typography>
+            <LinearProgress variant="determinate" value={user.progression.progressPercent}
+              aria-label={`Progresso para o nível ${user.progression.level + 1}`}
+              aria-valuetext={`${user.progression.xpInLevel} de ${user.progression.xpForNextLevel} XP`}
+              sx={{ my: 0.75, height: 6, borderRadius: 3, backgroundColor: "#243248", "& .MuiLinearProgress-bar": { backgroundColor: "#a3e635" } }} />
+            <Typography sx={{ fontSize: 10, color: "#b8c7db" }}>
+              {user.progression.xpInLevel.toLocaleString("pt-BR")} / {user.progression.xpForNextLevel.toLocaleString("pt-BR")} XP
+            </Typography>
+            <Typography sx={{ fontSize: 10, color: "#b8c7db" }}>Faltam {user.progression.xpRemaining.toLocaleString("pt-BR")} XP para o nível {user.progression.level + 1}</Typography>
+          </Box>}
         </div>
         <button aria-label="Sair da conta" onClick={leave}>
           <LogoutRounded />

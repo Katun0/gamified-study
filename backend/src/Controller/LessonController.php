@@ -51,7 +51,9 @@ final class LessonController
         if ($state['problems'] === []) {
             $xpAwarded = $progress->completeReading($lesson, $user);
         }
-        return new JsonResponse(['completed' => true, 'xpAwarded' => $xpAwarded, 'totalXp' => $progress->totalXp($user)]);
+        $totalXp = $progress->totalXp($user);
+        return new JsonResponse(['completed' => true, 'xpAwarded' => $xpAwarded, 'totalXp' => $totalXp,
+            'progression' => \App\Progress\UserLevel::describe($totalXp)]);
     }
 
     #[Route('/api/lessons', name: 'api_lessons_create', methods: ['POST'])]

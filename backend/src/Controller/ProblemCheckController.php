@@ -110,6 +110,7 @@ final class ProblemCheckController
             $xpAwarded = $progress->accept($problem, $user);
         }
 
+        $totalXp = $progress->totalXp($user);
         return new JsonResponse([
             'status' => $status,
             'evaluationMode' => $problem->getEvaluationMode(),
@@ -120,7 +121,8 @@ final class ProblemCheckController
             'stdout' => $result['stdout'],
             'errorOutput' => $result['stderr'],
             'xpAwarded' => $xpAwarded,
-            'totalXp' => $progress->totalXp($user)
+            'totalXp' => $totalXp,
+            'progression' => \App\Progress\UserLevel::describe($totalXp),
         ]);
     }
 

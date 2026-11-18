@@ -14,7 +14,7 @@ import {
   ScienceRounded,
 } from "@mui/icons-material";
 import { apiRequest } from "../../lib/api";
-import { useAuth } from "../../auth/useAuth";
+import { useAuth, type Progression } from "../../auth/useAuth";
 const PythonEditor = lazy(() => import("../../components/PythonEditor"));
 export type TestCase = {
   evaluationMode?: "stdin_stdout" | "function";
@@ -44,6 +44,7 @@ type Result = {
   errorOutput: string;
   xpAwarded: number;
   totalXp: number;
+  progression?: Progression;
 };
 export function ProblemExercise({
   id,
@@ -72,7 +73,7 @@ export function ProblemExercise({
         body: JSON.stringify({ code }),
       });
       setResult(data);
-      if (user) updateTotalXp(user.id, data.totalXp);
+      if (user) updateTotalXp(user.id, data.totalXp, data.progression);
       if (data.status === "accepted" && onSuccess) {
         onSuccess();
       }

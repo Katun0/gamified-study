@@ -95,6 +95,12 @@ final class LessonController
         if (!$this->validReward($data) || !is_string($data['difficulty'] ?? null) || !array_key_exists('xpReward', $data)) {
             return new JsonResponse(['error' => 'Informe dificuldade válida e XP inteiro entre 0 e 1000000, ou vazio para automático.'], 422);
         }
+        if (array_key_exists('content', $data)) {
+            if (!is_string($data['content']) || trim($data['content']) === '') {
+                return new JsonResponse(['error' => 'Informe um conteúdo não vazio para a lição.'], 422);
+            }
+            $lesson->setContent($data['content']);
+        }
         $lesson->setDifficulty($data['difficulty'])->setXpReward($data['xpReward']);
         $entityManager->flush();
         return new JsonResponse($this->serializeLesson($lesson));

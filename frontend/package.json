@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test:lesson-content": "node --test tests/LessonContent.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -24,7 +25,9 @@
     "codemirror": "^6.0.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.3",
+    "remark-gfm": "^4.0.1",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

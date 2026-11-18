@@ -1,0 +1,103 @@
+.lesson-markdown {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lesson-markdown > :first-child {
+  margin-top: 0;
+}
+
+.lesson-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.lesson-markdown h1,
+.lesson-markdown h2,
+.lesson-markdown h3,
+.lesson-markdown h4,
+.lesson-markdown h5,
+.lesson-markdown h6 {
+  line-height: 1.35;
+  margin: 1.35em 0 0.65em;
+}
+
+.lesson-markdown p {
+  margin: 0.8em 0;
+}
+
+.lesson-markdown ul,
+.lesson-markdown ol {
+  padding-left: 1.5rem;
+}
+
+.lesson-markdown li {
+  margin: 0.35em 0;
+}
+
+.lesson-markdown blockquote {
+  border-left: 3px solid #65d8c0;
+  color: #b7cbd4;
+  margin: 1em 0;
+  padding-left: 1rem;
+}
+
+.lesson-markdown a {
+  color: #65d8c0;
+  overflow-wrap: anywhere;
+}
+
+.lesson-markdown code {
+  background: rgb(5 19 29 / 55%);
+  border-radius: 4px;
+  font-family: Consolas, "Liberation Mono", monospace;
+  font-size: 0.9em;
+  padding: 0.12em 0.35em;
+}
+
+.lesson-markdown pre {
+  background: rgb(5 19 29 / 75%);
+  border: 1px solid rgb(157 182 195 / 20%);
+  border-radius: 10px;
+  overflow-x: auto;
+  padding: 14px 16px;
+}
+
+.lesson-markdown pre code {
+  background: transparent;
+  display: block;
+  overflow-wrap: normal;
+  padding: 0;
+  white-space: pre;
+}
+
+.lesson-markdown-table {
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+.lesson-markdown table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.lesson-markdown th,
+.lesson-markdown td {
+  border: 1px solid rgb(157 182 195 / 30%);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.lesson-markdown th {
+  background: rgb(5 19 29 / 45%);
+}
+
+.lesson-markdown img {
+  height: auto;
+  max-width: 100%;
+}
+
+.lesson-markdown hr {
+  border: 0;
+  border-top: 1px solid rgb(157 182 195 / 30%);
+  margin: 1.5em 0;
+}

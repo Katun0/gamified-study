@@ -188,7 +188,7 @@ export default function CreateLesson() {
             multiline
             minRows={10}
             fullWidth
-            helperText="O estudante verá este conteúdo antes de resolver os desafios."
+            helperText="Use Markdown para títulos (#), negrito (**texto**), listas (- item) e blocos de código (```), sem HTML."
           />
           <Button
             className="sq-admin-submit"

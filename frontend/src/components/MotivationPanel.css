@@ -1,0 +1,40 @@
+.sq-motivation { margin-bottom: 28px; color: #e7eef9; }
+.sq-motivation-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.sq-motivation-heading h2 { margin: 4px 0; font-size: 23px; letter-spacing: -.6px; }
+.sq-motivation-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #93a5bd; }
+.sq-motivation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sq-metric-card { min-width: 0; padding: 22px; border: 1px solid #2c3c54; border-radius: 18px; background: #111d30; }
+.sq-metric-card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 18px; font-size: 14px; color: #d5dfec; }
+.sq-streak-card { background: radial-gradient(ellipse at top right, #542d202e, transparent 75%), #111d30; }
+.sq-streak-card h3 svg { color: #fb923c; }
+.sq-metric-value { font-size: 46px; line-height: 1; letter-spacing: -2px; font-weight: 900; }
+.sq-metric-unit { margin-left: 8px; font-size: 13px; color: #aebdd0; }
+.sq-metric-copy { color: #aebdd0; font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.sq-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 20px; }
+.sq-week-day { text-align: center; color: #9badc4; font-size: 10px; }
+.sq-week-dot { display: grid; place-items: center; width: 28px; height: 28px; margin: 7px auto; border-radius: 50%; background: #1e2c42; border: 1px solid #35445b; }
+.sq-week-dot svg { font-size: 17px; }
+.sq-week-day.is-active .sq-week-dot { color: #ffbe7d; background: #6b352d; border-color: #a85b35; }
+.sq-week-day.is-today .sq-week-dot { outline: 2px solid #b6c7db; outline-offset: 3px; }
+.sq-goal-body { display: flex; align-items: center; gap: 20px; }
+.sq-goal-ring { position: relative; flex: 0 0 100px; height: 100px; }
+.sq-goal-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.sq-goal-ring strong { position: absolute; inset: 0; display: grid; place-items: center; font-size: 22px; }
+.sq-goal-caption { font-size: 15px; font-weight: 800; margin: 0; }
+.sq-motivation-stats { display: flex; flex-wrap: wrap; gap: 16px; border-top: 1px solid #28384f; margin-top: 18px; padding-top: 14px; color: #aebdd0; font-size: 12px; }
+.sq-motivation-stats strong { color: #e7eef9; }
+.sq-achievements { margin-top: 20px; padding: 22px; border-radius: 18px; border: 1px solid #2c3c54; background: #101a2b; }
+.sq-achievements-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.sq-achievements-header h3 { margin: 0; font-size: 16px; }
+.sq-achievements-header span { color: #e9c975; font-size: 12px; }
+.sq-badge-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.sq-badge { display: flex; align-items: flex-start; gap: 12px; border: 1px solid #5f5233; padding: 14px; border-radius: 12px; background: #2e291c55; min-width: 0; }
+.sq-badge.is-locked { border: 1px dashed #34445d; background: #142036; }
+.sq-badge-icon { flex: 0 0 34px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: #5e492a; color: #ffda7b; }
+.sq-badge.is-locked .sq-badge-icon { color: #a4b3c7; background: #24334a; }
+.sq-badge h4 { font-size: 12px; margin: 0 0 5px; overflow-wrap: anywhere; }
+.sq-badge p { font-size: 11px; color: #adbed3; line-height: 1.5; margin: 0; }
+.sq-badge-status { display: block; margin-top: 7px; font-size: 10px; color: #e9c975; }
+.sq-badge.is-locked .sq-badge-status { color: #9badc4; }
+@media (max-width: 700px) { .sq-motivation-grid { grid-template-columns: 1fr; } .sq-motivation-heading { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 420px) { .sq-badge-grid { grid-template-columns: 1fr; } .sq-metric-card, .sq-achievements { padding: 16px; } }

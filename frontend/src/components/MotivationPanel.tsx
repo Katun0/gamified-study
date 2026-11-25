@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, MenuItem, Stack, TextField, Typography } from "@mui/material";
-import { EmojiEventsRounded, FlagRounded } from "@mui/icons-material";
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { EmojiEventsRounded, FlagRounded, LocalFireDepartmentRounded, CheckRounded, LockRounded } from "@mui/icons-material";
+import "./MotivationPanel.css";
 import { apiRequest } from "../lib/api";
 
 type Achievement = { code: string; title: string; description: string; kind: "module" | "milestone"; unlockedAt: string };
 type Motivation = {
   daily: { date: string; timezone: string; goal: number; completed: number; achieved: boolean };
   achievements: Achievement[];
+  streak?: { current: number; best: number; activeToday: boolean; week: { date: string; active: boolean; today: boolean }[] };
   stats: { solved: number; lessons: number; studyDays: number };
 };
 
@@ -58,25 +60,59 @@ export default function MotivationPanel({ revision }: { revision: number }) {
     }
   }
 
-  return <Box component="section" aria-label="Metas e conquistas" sx={{ mb: 3, p: { xs: 2, sm: 3 }, border: "1px solid #334155", borderRadius: 3, background: "#111c2e" }}>
-    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }}>
-      <Typography component="h2" variant="h6" sx={{ display: "flex", gap: 1, alignItems: "center" }}><FlagRounded sx={{ color: "#a3e635" }} /> Sua meta de hoje</Typography>
-      {data && <TextField select size="small" label="Meta diária" value={data.daily.goal} disabled={saving} onChange={(event) => changeGoal(Number(event.target.value))} sx={{ minWidth: 160 }}>
+  const percent = data ? Math.min(100, data.daily.completed / Math.max(1, data.daily.goal) * 100) : 0;
+  const pending = data ? [
+    { code: "first_problem", title: "Primeiros passos", description: "Resolva seu primeiro desafio.", value: data.stats.solved, target: 1 },
+    { code: "ten_problems", title: "Dez desafios vencidos", description: "Resolva dez desafios diferentes.", value: data.stats.solved, target: 10 },
+    { code: "first_lesson", title: "Primeira missão", description: "Conclua sua primeira lição.", value: data.stats.lessons, target: 1 },
+    { code: "seven_days", title: "Uma semana de prática", description: "Pratique em sete dias, consecutivos ou não.", value: data.stats.studyDays, target: 7 },
+  ].filter((item) => !data.achievements.some((earned) => earned.code === item.code)) : [];
+
+  return <Box component="section" aria-label="Metas e conquistas" className="sq-motivation">
+    <div className="sq-motivation-heading">
+      <div><span className="sq-motivation-eyebrow">CADA PASSO CONTA</span><h2>Seu ritmo de aprendizado</h2></div>
+      {data && <TextField select size="small" label="Meta diária" value={data.daily.goal} disabled={saving} onChange={(event) => changeGoal(Number(event.target.value))} sx={{ minWidth: 180 }}>
         {[1, 2, 3].map((goal) => <MenuItem key={goal} value={goal}>{goal} {goal === 1 ? "desafio" : "desafios"} por dia</MenuItem>)}
       </TextField>}
-    </Stack>
-    {error && <Alert severity="warning" sx={{ mt: 2 }} action={<Button onClick={() => setRefresh((value) => value + 1)}>Tentar novamente</Button>}>{error}</Alert>}
-    {!data && !error && <Typography role="status" sx={{ mt: 2 }}>Carregando suas conquistas…</Typography>}
+    </div>
+    {error && <Alert severity="warning" sx={{ mb: 2 }} action={<Button onClick={() => setRefresh((value) => value + 1)}>Tentar novamente</Button>}>{error}</Alert>}
+    {!data && !error && <Typography role="status">Carregando suas conquistas…</Typography>}
     {data && <>
-      <Typography aria-live="polite" sx={{ mt: 2 }}>{data.daily.completed} de {data.daily.goal} desafios novos concluídos {data.daily.achieved ? "· Meta alcançada!" : "· Cada passo conta"}</Typography>
-      <LinearProgress variant="determinate" value={Math.min(100, data.daily.completed / data.daily.goal * 100)} aria-label="Progresso da meta diária" sx={{ my: 1, height: 8, borderRadius: 4, "& .MuiLinearProgress-bar": { backgroundColor: "#a3e635" } }} />
-      <Typography variant="caption" color="text.secondary">Reinicia à meia-noite de São Paulo. Repetir um desafio já resolvido não conta novamente.</Typography>
-      <Typography component="h3" sx={{ mt: 3, mb: 1, fontWeight: 800 }}>Suas conquistas · {data.achievements.length}</Typography>
-      <Stack direction="row" useFlexGap sx={{ flexWrap: "wrap", gap: 1 }}>
-        {data.achievements.map((item) => <Chip key={item.code} icon={<EmojiEventsRounded />} label={item.title} title={item.description} sx={{ maxWidth: "100%", color: "#fde68a", backgroundColor: "#302a1b", "& .MuiChip-icon": { color: "#fbbf24" } }} />)}
-      </Stack>
-      {!data.achievements.length && <Typography color="text.secondary">Resolva seu primeiro desafio para conquistar sua primeira medalha.</Typography>}
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>{data.stats.solved} desafios · {data.stats.lessons} lições · {data.stats.studyDays} dias de prática</Typography>
+      <div className="sq-motivation-grid">
+        <section className="sq-metric-card sq-streak-card" aria-label="Sequência de estudo">
+          <h3><LocalFireDepartmentRounded /> Sequência de estudo</h3>
+          {data.streak ? <>
+            <strong className="sq-metric-value">{data.streak.current}</strong><span className="sq-metric-unit">{data.streak.current === 1 ? "dia seguido" : "dias seguidos"}</span>
+            <p className="sq-metric-copy">{data.streak.activeToday ? "Sequência em dia. Você já deu seu passo hoje!" : data.streak.current > 0 ? "Conclua uma atividade hoje para manter sua sequência." : "Uma nova atividade hoje começa sua sequência."}<br />Seu recorde: <strong>{data.streak.best} {data.streak.best === 1 ? "dia" : "dias"}</strong>.</p>
+            <div className="sq-week" aria-label="Atividade nos últimos sete dias">
+              {data.streak.week.map((day) => <div key={day.date} className={`sq-week-day${day.active ? " is-active" : ""}${day.today ? " is-today" : ""}`} aria-label={`${day.date}: ${day.active ? "atividade concluída" : "sem atividade"}${day.today ? ", hoje" : ""}`}>
+                <span>{day.today ? "Hoje" : new Intl.DateTimeFormat("pt-BR", { weekday: "short", timeZone: "UTC" }).format(new Date(day.date + "T12:00:00Z"))}</span>
+                <span className="sq-week-dot">{day.active ? <CheckRounded /> : <span aria-hidden="true">·</span>}</span>
+              </div>)}
+            </div>
+            <p className="sq-metric-copy">Conta ao concluir um novo desafio ou uma lição. Entrar no site ou repetir desafios não conta.</p>
+          </> : <p className="sq-metric-copy">A sequência ficará disponível após a atualização da API.</p>}
+        </section>
+        <section className="sq-metric-card" aria-label="Meta diária">
+          <h3><FlagRounded sx={{ color: "#a3e635" }} /> Sua meta de hoje</h3>
+          <div className="sq-goal-body">
+            <div className="sq-goal-ring" role="progressbar" aria-label="Progresso da meta diária" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`${data.daily.completed} de ${data.daily.goal} desafios`}>
+              <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#28384f" strokeWidth="8" /><circle cx="50" cy="50" r="42" fill="none" stroke="#a3e635" strokeWidth="8" pathLength="100" strokeDasharray={`${percent} 100`} strokeLinecap={percent > 0 ? "round" : "butt"} /></svg>
+              <strong>{data.daily.completed}/{data.daily.goal}</strong>
+            </div>
+            <div aria-live="polite"><p className="sq-goal-caption">{data.daily.achieved ? "Meta alcançada!" : "Um desafio de cada vez"}</p><p className="sq-metric-copy">{data.daily.achieved ? "Bom trabalho! Seu progresso de hoje está registrado." : `Falta${data.daily.goal - data.daily.completed === 1 ? "" : "m"} ${data.daily.goal - data.daily.completed} para completar sua meta.`}</p></div>
+          </div>
+          <p className="sq-metric-copy">Somente desafios novos aprovados. Reinicia à meia-noite de São Paulo.</p>
+          <div className="sq-motivation-stats"><span><strong>{data.stats.solved}</strong> desafios</span><span><strong>{data.stats.lessons}</strong> lições</span><span><strong>{data.stats.studyDays}</strong> dias de prática</span></div>
+        </section>
+      </div>
+      <section className="sq-achievements" aria-label="Coleção de conquistas">
+        <div className="sq-achievements-header"><h3>Suas conquistas</h3><span>{data.achievements.length} desbloqueadas</span></div>
+        <div className="sq-badge-grid">
+          {data.achievements.map((item) => <article className="sq-badge" key={item.code}><span className="sq-badge-icon"><EmojiEventsRounded /></span><div><h4>{item.title}</h4><p>{item.description}</p><span className="sq-badge-status">✓ Conquistada</span></div></article>)}
+          {pending.map((item) => <article className="sq-badge is-locked" key={item.code}><span className="sq-badge-icon"><LockRounded /></span><div style={{ flex: 1 }}><h4>{item.title}</h4><p>{item.description}</p><span className="sq-badge-status">Em progresso · {Math.min(item.value, item.target)}/{item.target}</span><LinearProgress variant="determinate" value={Math.min(100, item.value / item.target * 100)} aria-label={`Progresso: ${item.title}`} sx={{ mt: 1, height: 4, borderRadius: 2 }} /></div></article>)}
+        </div>
+      </section>
     </>}
     <Dialog open={celebration.length > 0} onClose={() => setCelebration([])} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ textAlign: "center" }}><EmojiEventsRounded sx={{ display: "block", mx: "auto", mb: 1, fontSize: 56, color: "#fbbf24" }} />Mais uma conquista!</DialogTitle>

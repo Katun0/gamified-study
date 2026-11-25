@@ -21,10 +21,11 @@ final class Gamification
             [$today, $user->getId()]
         );
         $lessons = (int) $db->fetchOne('SELECT COUNT(*) FROM lesson_progress WHERE user_id = ?', [$user->getId()]);
-        $days = (int) $db->fetchOne(
-            "SELECT COUNT(DISTINCT (completed_at AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date) FROM (SELECT completed_at FROM problem_progress WHERE user_id = :user UNION ALL SELECT completed_at FROM lesson_progress WHERE user_id = :user) activity",
+        $activityDates = $db->fetchFirstColumn(
+            "SELECT DISTINCT (completed_at AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date AS day FROM (SELECT completed_at FROM problem_progress WHERE user_id = :user UNION ALL SELECT completed_at FROM lesson_progress WHERE user_id = :user) activity ORDER BY day",
             ['user' => $user->getId()]
         );
+        $days = count($activityDates);
         $courses = $db->fetchAllAssociative(
             'SELECT c.id, c.name FROM courses c WHERE EXISTS (SELECT 1 FROM lessons l WHERE l.course_id=c.id) AND NOT EXISTS (SELECT 1 FROM lessons l WHERE l.course_id=c.id AND NOT EXISTS (SELECT 1 FROM lesson_progress lp WHERE lp.lesson_id=l.id AND lp.user_id=?)) ORDER BY c.id',
             [$user->getId()]
@@ -47,8 +48,37 @@ final class Gamification
             'daily' => ['date' => $today, 'timezone' => self::TIMEZONE, 'goal' => $user->getDailyGoal(),
                 'completed' => (int) $stats['today'], 'achieved' => (int) $stats['today'] >= $user->getDailyGoal()],
             'achievements' => $achievements,
+            'streak' => self::streak($activityDates, $today),
             'stats' => ['solved' => (int) $stats['solved'], 'lessons' => $lessons, 'studyDays' => $days],
         ];
+    }
+
+    public static function streak(array $dates, string $today): array
+    {
+        $dates = array_values(array_unique(array_filter($dates, static fn (string $day): bool => $day <= $today)));
+        sort($dates);
+        $active = array_fill_keys($dates, true);
+        $day = new \DateTimeImmutable($today, new \DateTimeZone(self::TIMEZONE));
+        $cursor = isset($active[$today]) ? $day : $day->modify('-1 day');
+        $current = 0;
+        while (isset($active[$cursor->format('Y-m-d')])) {
+            $current++;
+            $cursor = $cursor->modify('-1 day');
+        }
+        $best = $run = 0;
+        $previous = null;
+        foreach ($dates as $date) {
+            $expected = (new \DateTimeImmutable($date))->modify('-1 day')->format('Y-m-d');
+            $run = $previous === $expected ? $run + 1 : 1;
+            $best = max($best, $run);
+            $previous = $date;
+        }
+        $week = [];
+        for ($offset = 6; $offset >= 0; $offset--) {
+            $date = $day->modify('-'.$offset.' days')->format('Y-m-d');
+            $week[] = ['date' => $date, 'active' => isset($active[$date]), 'today' => $date === $today];
+        }
+        return ['current' => $current, 'best' => $best, 'activeToday' => isset($active[$today]), 'week' => $week];
     }
 
     public static function milestones(int $solved, int $lessons, int $days): array

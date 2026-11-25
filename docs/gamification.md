@@ -33,6 +33,12 @@ php bin/console doctrine:migrations:migrate --no-interaction
 
 O rollback dessa migration remove preferências e conquistas, sem remover XP ou conclusões. Exige reverter também o código que depende desses campos.
 
+## Painel visual e sequência
+
+O painel da trilha mostra meta circular, calendário dos últimos sete dias, sequência atual, recorde e medalhas conquistadas ou pendentes com progresso. O layout se adapta ao celular.
+
+O campo `streak` da API calcula dias consecutivos a partir das conclusões existentes, no fuso de São Paulo. Uma conclusão de desafio ou lição ativa o dia; repetições não contam. Se hoje ainda não houve atividade, a sequência terminada ontem continua válida até meia-noite. Um dia completo sem atividade zera a sequência atual, preservando o recorde. Não é necessária outra migration para esse cálculo.
+
 ## Fora desta entrega
 
 Sequência de dias consecutivos, proteção de sequência, missões semanais, moedas, ranking e loja. Sete dias de prática é uma medalha cumulativa, não uma sequência consecutiva.

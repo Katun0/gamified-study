@@ -41,4 +41,4 @@ O campo `streak` da API calcula dias consecutivos a partir das conclusões exist
 
 ## Fora desta entrega
 
-Proteção de sequência, missões semanais, moedas, ranking e loja. Sete dias de prática é uma medalha cumulativa, não uma sequência consecutiva.
+Sequência de dias consecutivos, proteção de sequência, missões semanais, moedas, ranking e loja. Sete dias de prática é uma medalha cumulativa, não uma sequência consecutiva.

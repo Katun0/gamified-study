@@ -22,6 +22,8 @@ final class AccessControlTest extends TestCase
             ['GET', '/api/courses', [], true],
             ['GET', '/api/courses/1/lessons', [], true],
             ['GET', '/api/me', [], true],
+            ['GET', '/api/me/gamification', [], true],
+            ['PUT', '/api/me/daily-goal', [], true],
             ['POST', '/api/problems/1/check', [], true],
             ['POST', '/api/lessons/1/complete', [], true],
             ['PUT', '/api/problems/1/test-case', [], false],

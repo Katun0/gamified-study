@@ -40,6 +40,44 @@ final class ProgressIntegrationTest extends KernelTestCase
         parent::tearDown();
     }
 
+    public function testGamificationCountsDistinctCompletionsAndKeepsMedals(): void
+    {
+        $course = (new Courses())->setName('Gamification');
+        $lesson = (new Lesson())->setTitle('Missão')->setCourse($course);
+        $a = new Problem($lesson, 'A', 'A');
+        $b = new Problem($lesson, 'B', 'B');
+        foreach ([$course, $lesson, $a, $b] as $entity) $this->em->persist($entity);
+        $this->em->flush();
+        $gamification = self::getContainer()->get(\App\Progress\Gamification::class);
+        $this->user->setDailyGoal(2);
+        $this->progress->accept($a, $this->user);
+        $this->progress->accept($b, $this->user);
+        $first = $gamification->summary($this->user);
+        self::assertSame(2, $first['daily']['completed']);
+        self::assertTrue($first['daily']['achieved']);
+        self::assertContains('course:'.$course->getId(), array_column($first['achievements'], 'code'));
+        $xp = $this->progress->totalXp($this->user);
+        $this->progress->accept($b, $this->user);
+        self::assertSame($xp, $this->progress->totalXp($this->user));
+        self::assertSame($first, $gamification->summary($this->user));
+
+        $db = $this->em->getConnection();
+        $db->executeStatement('UPDATE problem_progress SET completed_at=? WHERE user_id=? AND problem_id=?', ['2026-11-24 02:59:00', $this->user->getId(), $a->getId()]);
+        $db->executeStatement('UPDATE problem_progress SET completed_at=? WHERE user_id=? AND problem_id=?', ['2026-11-24 03:01:00', $this->user->getId(), $b->getId()]);
+        $boundary = $gamification->summary($this->user, new \DateTimeImmutable('2026-11-24T04:00:00Z'));
+        self::assertSame('2026-11-24', $boundary['daily']['date']);
+        self::assertSame(1, $boundary['daily']['completed']);
+        self::assertFalse($boundary['daily']['achieved']);
+        $newLesson = (new Lesson())->setTitle('Conteúdo novo')->setCourse($course);
+        $this->em->persist($newLesson);
+        $other = (new User())->setName('Other')->setEmail(uniqid().'@example.com')->setPassword('password');
+        $this->em->persist($other);
+        $this->em->flush();
+        self::assertContains('course:'.$course->getId(), array_column($gamification->summary($this->user)['achievements'], 'code'));
+        self::assertSame([], $gamification->summary($other)['achievements']);
+        self::assertSame(0, $gamification->summary($other)['daily']['completed']);
+    }
+
     public function testProgressLogic(): void
     {
         $course = new Courses();

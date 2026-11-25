@@ -27,6 +27,7 @@ import { useAuth, type Progression } from "../../auth/useAuth";
 import "./Trail.css";
 import LessonContent from "../../components/LessonContent";
 import StudySidebar from "../../components/layout/StudySidebar";
+import MotivationPanel from "../../components/MotivationPanel";
 import LessonProblems from "../Problems/LessonProblems";
 
 type Course = { id: number; name: string; description: string };
@@ -176,6 +177,7 @@ export default function Trail() {
                 <RouteRounded />
               </div>
             </div>
+            {user && <MotivationPanel key={user.id} revision={progressRevision} />}
             {error && (
               <Alert
                 severity="error"

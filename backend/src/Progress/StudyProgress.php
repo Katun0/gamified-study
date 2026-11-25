@@ -14,7 +14,7 @@ final class StudyProgress
 {
     public const READING_XP = 100;
 
-    public function __construct(private Connection $connection) {}
+    public function __construct(private Connection $connection, private ?Gamification $gamification = null) {}
 
     public function course(int $courseId, User $user): array
     {
@@ -103,7 +103,9 @@ final class StudyProgress
                 'INSERT INTO problem_progress (user_id, problem_id, completed_at) VALUES (?, ?, CURRENT_TIMESTAMP)
                  ON CONFLICT (user_id, problem_id) DO NOTHING', [$user->getId(), $problem->getId()]
             );
-            return $this->awardLesson($problem->getLesson(), $user);
+            $xp = $this->awardLesson($problem->getLesson(), $user);
+            $this->gamification?->summary($user);
+            return $xp;
         });
     }
 
@@ -115,7 +117,9 @@ final class StudyProgress
             if ($state['problems'] !== []) {
                 throw new ConflictHttpException('Resolva os problemas para concluir esta lição.');
             }
-            return $this->awardLesson($lesson, $user);
+            $xp = $this->awardLesson($lesson, $user);
+            $this->gamification?->summary($user);
+            return $xp;
         });
     }
 

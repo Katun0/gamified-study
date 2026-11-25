@@ -46,6 +46,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'total_xp', options: ['default' => 0])]
     private int $totalXp = 0;
 
+    #[ORM\Column(options: ['default' => 1])]
+    private int $dailyGoal = 1;
+
+    public function getDailyGoal(): int { return $this->dailyGoal; }
+    public function setDailyGoal(int $goal): void { $this->dailyGoal = $goal; }
+
     public function getId(): ?int
     {
         return $this->id;

@@ -1,40 +1,55 @@
-.sq-motivation { margin-bottom: 28px; color: #e7eef9; }
-.sq-motivation-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-.sq-motivation-heading h2 { margin: 4px 0; font-size: 23px; letter-spacing: -.6px; }
-.sq-motivation-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #93a5bd; }
-.sq-motivation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.sq-metric-card { min-width: 0; padding: 22px; border: 1px solid #2c3c54; border-radius: 18px; background: #111d30; }
-.sq-metric-card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 18px; font-size: 14px; color: #d5dfec; }
-.sq-streak-card { background: radial-gradient(ellipse at top right, #542d202e, transparent 75%), #111d30; }
-.sq-streak-card h3 svg { color: #fb923c; }
-.sq-metric-value { font-size: 46px; line-height: 1; letter-spacing: -2px; font-weight: 900; }
-.sq-metric-unit { margin-left: 8px; font-size: 13px; color: #aebdd0; }
-.sq-metric-copy { color: #aebdd0; font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
-.sq-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 20px; }
-.sq-week-day { text-align: center; color: #9badc4; font-size: 10px; }
-.sq-week-dot { display: grid; place-items: center; width: 28px; height: 28px; margin: 7px auto; border-radius: 50%; background: #1e2c42; border: 1px solid #35445b; }
-.sq-week-dot svg { font-size: 17px; }
-.sq-week-day.is-active .sq-week-dot { color: #ffbe7d; background: #6b352d; border-color: #a85b35; }
-.sq-week-day.is-today .sq-week-dot { outline: 2px solid #b6c7db; outline-offset: 3px; }
-.sq-goal-body { display: flex; align-items: center; gap: 20px; }
-.sq-goal-ring { position: relative; flex: 0 0 100px; height: 100px; }
-.sq-goal-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-.sq-goal-ring strong { position: absolute; inset: 0; display: grid; place-items: center; font-size: 22px; }
-.sq-goal-caption { font-size: 15px; font-weight: 800; margin: 0; }
-.sq-motivation-stats { display: flex; flex-wrap: wrap; gap: 16px; border-top: 1px solid #28384f; margin-top: 18px; padding-top: 14px; color: #aebdd0; font-size: 12px; }
-.sq-motivation-stats strong { color: #e7eef9; }
-.sq-achievements { margin-top: 20px; padding: 22px; border-radius: 18px; border: 1px solid #2c3c54; background: #101a2b; }
-.sq-achievements-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
-.sq-achievements-header h3 { margin: 0; font-size: 16px; }
-.sq-achievements-header span { color: #e9c975; font-size: 12px; }
-.sq-badge-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.sq-badge { display: flex; align-items: flex-start; gap: 12px; border: 1px solid #5f5233; padding: 14px; border-radius: 12px; background: #2e291c55; min-width: 0; }
-.sq-badge.is-locked { border: 1px dashed #34445d; background: #142036; }
-.sq-badge-icon { flex: 0 0 34px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: #5e492a; color: #ffda7b; }
-.sq-badge.is-locked .sq-badge-icon { color: #a4b3c7; background: #24334a; }
-.sq-badge h4 { font-size: 12px; margin: 0 0 5px; overflow-wrap: anywhere; }
-.sq-badge p { font-size: 11px; color: #adbed3; line-height: 1.5; margin: 0; }
-.sq-badge-status { display: block; margin-top: 7px; font-size: 10px; color: #e9c975; }
-.sq-badge.is-locked .sq-badge-status { color: #9badc4; }
-@media (max-width: 700px) { .sq-motivation-grid { grid-template-columns: 1fr; } .sq-motivation-heading { align-items: flex-start; flex-direction: column; } }
-@media (max-width: 420px) { .sq-badge-grid { grid-template-columns: 1fr; } .sq-metric-card, .sq-achievements { padding: 16px; } }
+/* Compact HUD: StudyQuest */
+.sq-motivation { padding: 17px; color: #ecf2ff; background: linear-gradient(145deg,#171f37,#11182b); border: 1px solid #344060; border-radius: 18px; min-width: 0; }
+.sq-hud-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.sq-motivation-eyebrow { font-size:9px; font-weight:900; color:#a9bad3; letter-spacing:1.4px; }
+.sq-hud-header h2 { font-size:17px; font-weight:900; margin:5px 0 12px; letter-spacing:-.35px; }
+.sq-hud-header > svg { font-size:24px; color:#f7d27c; }
+.sq-hud-xp { display:flex; gap:12px; align-items:center; padding:12px 10px; border-radius:14px; border:1px solid #394562; background:linear-gradient(120deg,#222b44,#1b2440); }
+.sq-hud-xp-ring { width:105px; height:105px; flex:0 0 105px; position:relative; }
+.sq-hud-xp-ring svg { height:100%; width:100%; }
+.sq-hud-xp-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+.sq-hud-xp-center strong { font-size:25px; letter-spacing:-1px; font-weight:950; color:#fff; }
+.sq-hud-xp-center span { font-size:9px; font-weight:900; color:#baff69; letter-spacing:1px; }
+.sq-hud-xp-copy { min-width:0; display:flex; flex-direction:column; gap:5px; }
+.sq-hud-xp-copy strong { font-size:13px; line-height:1.3; }
+.sq-hud-xp-copy small { font-size:10px; color:#b5c4d8; line-height:1.5; }
+.sq-hud-xp-copy .sq-hud-muted { color:#899bb5; font-size:9px; }
+.sq-hud-label { font-size:9px; color:#b9ef7b; letter-spacing:1px; font-weight:850; }
+.sq-hud-duo { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:11px; }
+.sq-hud-mini { min-width:0; display:flex; flex-direction:column; gap:3px; padding:13px; border:1px solid #394562; border-radius:14px; background:#151e32; }
+.sq-hud-mini > svg { width:22px; height:22px; }
+.sq-hud-mini > strong { font-size:24px; font-weight:950; line-height:1.1; letter-spacing:-1px; }
+.sq-hud-mini > span { font-size:11px; font-weight:800; }
+.sq-hud-mini > small { font-size:10px; color:#a9bad3; }
+.sq-hud-fire { color:#fb923c; }
+.sq-hud-flag { color:#b7f258; }
+.sq-hud-progress { height:6px; border-radius:999px; background:#303d57; margin-top:7px; overflow:hidden; }
+.sq-hud-progress > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#a3e635,#d6fb81); }
+.sq-hud-controls { padding-top:13px; }
+.sq-hud-controls .MuiOutlinedInput-notchedOutline { border-color:#44516c; }
+.sq-hud-controls .MuiSelect-icon { color:#afbdd5; }
+.sq-week { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; margin:15px 0 0; }
+.sq-week-day { min-width:0; text-align:center; color:#9bacbf; font-size:9px; }
+.sq-week-day > span:first-child { display:block; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+.sq-week-dot { width:25px; height:25px; display:grid; place-items:center; margin:6px auto 0; border:1px solid #445371; border-radius:50%; background:#26334a; }
+.sq-week-dot svg { font-size:15px; }
+.sq-week-day.is-active .sq-week-dot { background:#623c29; color:#ffbd7c; border-color:#e18a48; }
+.sq-week-day.is-today .sq-week-dot { outline:2px solid #b7f258; outline-offset:2px; }
+.sq-hud-achievements { margin-top:15px; padding-top:14px; border-top:1px solid #36435e; }
+.sq-hud-achievements summary { cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:6px; list-style:none; }
+.sq-hud-achievements summary::-webkit-details-marker { display:none; }
+.sq-hud-achievements summary > span { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:900; }
+.sq-hud-achievements summary svg { font-size:19px; color:#f5ce70; }
+.sq-hud-achievements summary > strong { color:#d9c081; font-size:10px; white-space:nowrap; }
+.sq-hud-achievements-content { display:grid; gap:8px; margin-top:12px; }
+.sq-hud-badge { display:flex; align-items:flex-start; gap:9px; padding:10px; border:1px solid #635334; border-radius:10px; background:#342a234d; }
+.sq-hud-badge > svg { font-size:22px; flex-shrink:0; color:#f2cb66; }
+.sq-hud-badge > div { min-width:0; flex:1; }
+.sq-hud-badge strong,.sq-hud-badge small { display:block; overflow-wrap:anywhere; }
+.sq-hud-badge strong { font-size:11px; margin-bottom:3px; }
+.sq-hud-badge small { font-size:10px; color:#b6c5d6; line-height:1.4; }
+.sq-hud-badge.is-locked { border-style:dashed; border-color:#43506a; background:#18243a; }
+.sq-hud-badge.is-locked > svg { color:#8291b0; }
+.sq-hud-footnote { margin:12px 0 0; font-size:10px; line-height:1.5; color:#8395ad; }
+@media (max-width: 420px) { .sq-hud-xp { flex-direction:column; text-align:center; } .sq-hud-xp-copy { align-items:center; } }
+@media (prefers-reduced-motion: reduce) { .sq-hud-progress > span { transition:none; } }

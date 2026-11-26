@@ -31,6 +31,8 @@ import MotivationPanel from "../../components/MotivationPanel";
 import LessonProblems from "../Problems/LessonProblems";
 
 type Course = { id: number; name: string; description: string };
+// Deslocamento horizontal de cada missão; a linha usa os mesmos pontos.
+const NODE_OFFSETS = [0, -76, 0, 76] as const;
 type Lesson = {
   id: number;
   title: string;
@@ -177,7 +179,6 @@ export default function Trail() {
                 <RouteRounded />
               </div>
             </div>
-            {user && <MotivationPanel key={user.id} revision={progressRevision} />}
             {error && (
               <Alert
                 severity="error"
@@ -249,56 +250,64 @@ export default function Trail() {
                       <div className="trail-path-caption">
                         <span /> SUA JORNADA <span />
                       </div>
-                      <ol className="trail-path" aria-label="Lições do curso">
-                        {lessons.map((item, index) => (
-                          <li
-                            key={item.id}
-                            className={`trail-step trail-step-${index % 4}`}
-                          >
-                            {item.current && (
-                              <span className="trail-start-label">
-                                CONTINUAR
-                              </span>
-                            )}
-                            {index === 0 &&
-                              !item.current &&
-                              !item.completed && (
-                                <span className="trail-start-label">
-                                  COMECE AQUI
-                                </span>
-                              )}
-                            <button
-                              className={`trail-node ${index === 0 ? "trail-node-first" : ""} ${item.current ? "trail-node-current" : ""}`}
-                              disabled={item.locked}
-                              onClick={() => setOpened(index)}
-                              aria-label={`Abrir lição ${index + 1}: ${item.title}`}
-                            >
-                              {item.locked ? (
-                                <LockRounded />
-                              ) : index === 0 ? (
-                                <StarRounded />
-                              ) : index % 3 === 0 ? (
-                                <CodeRounded />
-                              ) : (
-                                <MenuBookRounded />
-                              )}
-                            </button>
-                            <span className="trail-step-number">
-                              LIÇÃO {String(index + 1).padStart(2, "0")}
-                            </span>
-                            <h3>{item.title}</h3>
-                            <span>
-                              {item.completed
-                                ? "Concluída"
-                                : item.locked
-                                  ? "Bloqueada"
-                                  : item.current
-                                    ? "Atual"
-                                    : "Disponível"}
-                            </span>
-                          </li>
-                        ))}
-                      </ol>
+                       <ol className="trail-path" aria-label="Lições do curso">
+                         {lessons.map((item, index) => {
+                           const currentX = 160 + NODE_OFFSETS[index % 4];
+                           const nextX = 160 + NODE_OFFSETS[(index + 1) % 4];
+                           const midway = (currentX + nextX) / 2;
+                           return (
+                             <li
+                               key={item.id}
+                               className={`trail-step ${item.completed ? "is-completed" : ""} ${item.current ? "is-current" : ""} ${item.locked ? "is-locked" : ""}`}
+                             >
+                               {index < lessons.length - 1 && (
+                                 <svg
+                                   className={`trail-connector ${item.completed ? "is-completed" : ""}`}
+                                   viewBox="0 0 320 190"
+                                   aria-hidden="true"
+                                   focusable="false"
+                                 >
+                                   <path d={`M ${currentX} 0 C ${currentX} 76, ${midway} 100, ${nextX} 190`} />
+                                 </svg>
+                               )}
+                               <div
+                                 className="trail-step-content"
+                                 style={{ transform: `translateX(${NODE_OFFSETS[index % 4]}px)` }}
+                               >
+                                 {(item.current || (index === 0 && !item.locked && !item.completed)) && (
+                                   <span className="trail-start-label">
+                                     {item.current ? "CONTINUAR" : "COMECE AQUI"}
+                                   </span>
+                                 )}
+                                 <button
+                                   type="button"
+                                   className={`trail-node ${item.current ? "trail-node-current" : ""} ${item.completed ? "trail-node-completed" : ""}`}
+                                   disabled={item.locked}
+                                   onClick={() => setOpened(index)}
+                                   aria-label={`${item.locked ? "Lição bloqueada" : "Abrir lição"} ${index + 1}: ${item.title}`}
+                                 >
+                                   {item.locked ? (
+                                     <LockRounded />
+                                   ) : item.completed ? (
+                                     <StarRounded />
+                                   ) : item.current ? (
+                                     <CodeRounded />
+                                   ) : (
+                                     <MenuBookRounded />
+                                   )}
+                                 </button>
+                                 <span className="trail-step-number">
+                                   MISSÃO {String(index + 1).padStart(2, "0")}
+                                 </span>
+                                 <h3>{item.title}</h3>
+                                 <span className="trail-step-state">
+                                   {item.completed ? "✓ Concluída" : item.locked ? "Bloqueada" : item.current ? "Em andamento" : "Disponível"}
+                                 </span>
+                               </div>
+                             </li>
+                           );
+                         })}
+                       </ol>
                       <div className="trail-finish">
                         <FlagRounded />
                         <h3>Conhecimento para levar adiante</h3>
@@ -310,49 +319,25 @@ export default function Trail() {
               </>
             )}
           </main>
-          <aside className="trail-right">
-            <section className="trail-tip-card">
-              <div className="trail-tip-symbol">
-                <AutoAwesome />
-              </div>
-              <span className="trail-eyebrow">CADA PASSO CONTA</span>
-              <h2>
-                O importante
-                <br />é começar.
-              </h2>
-              <p>
-                Reserve um momento do seu dia para aprender algo novo. Sua
-                próxima descoberta está a uma lição de distância.
-              </p>
-              {currentLessonIndex >= 0 && !waitingForLessons && !error && (
-                <button
-                  className="trail-primary-button"
-                  onClick={() => setOpened(currentLessonIndex)}
-                >
-                  Continuar lição <ArrowForward />
-                </button>
-              )}
-            </section>
-            <section className="trail-info-card">
-              <h3>
-                <MenuBookRounded /> Nesta trilha
-              </h3>
-              <div>
-                <strong>{loadingLessons ? "—" : lessons.length}</strong>
-                <span>lições para explorar</span>
-              </div>
-              <p>
-                Leia, experimente e revise.
-                <br />
-                As lições são desbloqueadas sequencialmente.
-              </p>
-            </section>
-            <p className="trail-footer-note">
-              Feito para mentes curiosas.
-              <br />
-              Uma descoberta de cada vez.
-            </p>
-          </aside>
+           <aside className="trail-right" aria-label="Seu painel de aventura">
+             {user && <MotivationPanel key={user.id} revision={progressRevision} />}
+             <section className="trail-tip-card">
+               <div className="trail-tip-symbol" aria-hidden="true"><AutoAwesome /></div>
+               <span className="trail-eyebrow">PRÓXIMA MISSÃO</span>
+               <h2>Um passo<br />de cada vez.</h2>
+               <p>Avance pela trilha, pratique e conquiste novas habilidades.</p>
+               {currentLessonIndex >= 0 && !waitingForLessons && !error && (
+                 <button type="button" className="trail-primary-button" onClick={() => setOpened(currentLessonIndex)}>
+                   Continuar aventura <ArrowForward />
+                 </button>
+               )}
+             </section>
+             <section className="trail-info-card">
+               <h3><MenuBookRounded /> Nesta trilha</h3>
+               <div><strong>{waitingForLessons ? "—" : lessons.filter((item) => item.completed).length}/{lessons.length}</strong><span>lições concluídas</span></div>
+               <p>As missões são liberadas à medida que você avança.</p>
+             </section>
+           </aside>
         </div>
       </div>
       <Dialog
